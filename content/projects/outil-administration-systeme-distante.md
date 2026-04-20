@@ -1,43 +1,89 @@
-# Outil d'Administration Système Distante
+# WallChange — Administration Système Distante
 
-Projet personnel. Solution de supervision et de pilotage de postes clients à distance, avec panneau de contrôle web et communication bas niveau en C.
+Projet personnel · Déployé sur [wallchange.codeky.fr](https://wallchange.codeky.fr) · Backend C + Interface React
 
-## Contexte
+Système complet de pilotage de postes à distance — fond d'écran, effets visuels, captures d'écran, commandes système — depuis un panneau web centralisé.
 
-Projet d'apprentissage sur les communications réseau bas niveau et l'administration système. L'objectif était de construire, sans framework, un système permettant de contrôler plusieurs machines distantes depuis un seul panneau web — comprendre concrètement ce que font des outils comme VNC ou SSH sous le capot.
+Dépôts : [WallChange (backend C)](https://github.com/Zeky69/WallChange) · [webWall (frontend React)](https://github.com/Zeky69/webWall)
 
-## Architecture
+## Vue d'ensemble
+
+Deux composants indépendants qui forment un système cohérent :
+
+- **WallChange** — agent C léger qui tourne sur chaque poste administré, connecté au serveur via WebSocket
+- **webWall** — interface React/TypeScript déployée en production, qui liste les postes connectés et envoie des commandes
+
+## WallChange — Backend C
+
+**Architecture client/serveur en C** avec la bibliothèque Mongoose pour le WebSocket et l'HTTP. Aucune dépendance lourde.
 
 ```
-Panneau web (navigateur)
-        ↓ HTTP
-Serveur central (C)
-        ↓ Sockets TCP
-Agents clients (C) — un par machine distante
+Interface web (wallchange.codeky.fr)
+        ↓ HTTPS / API REST
+Serveur C (Mongoose)
+        ↓ WebSocket
+Agents C — un par machine administrée
+        ↓
+Actions exécutées sur le poste
 ```
 
-**Serveur central** — reçoit les commandes depuis l'interface web, les route vers le bon client, agrège les réponses.
+**Serveur** — maintient la liste des clients connectés, identifiés par ID unique. Expose une API HTTP pour recevoir les commandes depuis le frontend. Route chaque commande vers le bon client ou les diffuse à tous.
 
-**Agents clients** — processus léger en C qui tourne sur chaque machine administrée. Écoute les instructions, les exécute et renvoie le résultat.
+**Client (agent)** — process léger qui se connecte au serveur au démarrage, reste en écoute de commandes, les exécute localement. Script d'installation avec démarrage automatique au boot.
 
-**Interface web** — panneau HTML/JS minimaliste pour envoyer des commandes et visualiser les retours.
+**cJSON** — sérialisation des messages échangés entre agent et serveur.
 
-## Fonctionnalités
+## webWall — Interface de contrôle React
 
-- **Exécution de commandes à distance** — une commande envoyée depuis le panneau s'exécute sur la machine cible et renvoie la sortie
-- **Diffusion d'images** — affichage d'une image sur l'écran de plusieurs postes simultanément (utile pour afficher des consignes ou du contenu en salle)
-- **Diffusion d'animations** — envoi de séquences animées sur les écrans clients
-- **Supervision multi-postes** — le panneau liste les machines connectées avec leur statut
+Interface d'administration déployée sur [wallchange.codeky.fr](https://wallchange.codeky.fr). Construite avec React + TypeScript + Tailwind.
 
-## Ce qui était technique
+### Gestion des clients
 
-Implémenter un serveur HTTP basique en C pur (sans librairie externe) a demandé de comprendre le protocole HTTP au niveau des en-têtes et du parsing des requêtes. De même pour les sockets TCP : gestion des connexions multiples avec `select()`, sérialisation des données, gestion des déconnexions inattendues.
+Chaque poste connecté est représenté par une **ClientCard** avec :
+- Statut en ligne / hors ligne en temps réel
+- Version et nom d'hôte
+- Badge "Locked" si la session est verrouillée
+- Sélection multiple pour les actions broadcast
 
-C'est le type de projet où on comprend pourquoi les abstractions réseau existent — et pourquoi elles sont utiles.
+### Contrôle par poste
+
+4 onglets par client :
+
+| Onglet | Actions |
+|--------|---------|
+| **Fond** | Upload d'image ou URL — change le fond d'écran |
+| **Marquee** | Texte ou image défilante sur l'écran |
+| **Particules** | Effets visuels animés |
+| **Cover** | Image de couverture plein écran |
+
+Actions rapides : bureau, inversion d'écran, capture d'écran, extinction.
+
+### Effets visuels (admin)
+
+15+ effets disponibles côté admin : Confetti, Feux d'artifice, DVD Bounce, Nyan Cat, Ondes, Spotlight, et d'autres.
+
+### Administration avancée
+
+- Verrouillage / blackout de session
+- **Capture d'écran** en temps réel
+- **Reverse shell** sur le poste ciblé
+- Logs d'activité par client (`ClientLogs`)
+- Statistiques globales (`StatsPage`)
+- Désinstallation de l'agent à distance
+
+### Authentification
+
+Système de rôles admin/user — les effets avancés et les commandes système sont réservés aux administrateurs.
 
 ## Stack
 
-- **C** — serveur central et agents clients
-- **Sockets TCP** — communication bas niveau
-- **HTTP** — protocole entre le navigateur et le serveur central
-- **HTML / JavaScript** — interface de contrôle web
+**Backend (WallChange)**
+- **C / C++** — serveur et agents clients
+- **Mongoose** — WebSocket + HTTP serveur en C
+- **cJSON** — sérialisation des messages
+
+**Frontend (webWall)**
+- **React + TypeScript** — interface de contrôle
+- **Tailwind CSS** — styles
+- **Vite** — build et dev server
+- **API REST** — communication vers le serveur C (wallchange.codeky.fr)
