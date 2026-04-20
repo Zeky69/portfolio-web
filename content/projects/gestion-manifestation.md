@@ -1,35 +1,47 @@
-﻿# Gestion Manifestation
+# Gestion Manifestation
 
-## Resume
-Application de gestion d'evenements avec suivi organisationnel, logistique et coordination d'equipe.
+Projet académique · Groupe de 5 · 2023–2024 · Application de gestion d'événements déployée en production sur [codeky.fr](https://codeky.fr).
 
-## Liens utiles
-- [Site de demonstration](https://codeky.fr)
+## Contexte
 
-## Ce que la page doit montrer
-- Le besoin: centraliser les actions autour d'un evenement
-- La solution: interface unique pour organiser et suivre
-- L'effet: pilotage plus clair et plus fiable
+Projet développé en groupe de 5 personnes dans le cadre du BUT Informatique. Objectif : construire une application complète de gestion d'événements (manifestations sportives, culturelles) — de la planification à la coordination sur le terrain — et la déployer en conditions réelles.
+
+## Fonctionnalités
+
+**Gestion de l'événement**
+Création et configuration d'une manifestation : date, lieu, capacité, missions à pourvoir. Chaque mission peut être assignée à un bénévole ou à un prestataire.
+
+**Suivi en temps réel**
+Tableau de bord central avec l'état des missions en cours, les alertes (mission non pourvue, retard signalé) et les ressources disponibles.
+
+**Cartographie**
+Intégration de **VueLeaflet** pour visualiser les postes de mission sur une carte interactive. Particulièrement utile pour les événements en extérieur avec plusieurs zones géographiques.
+
+**API REST**
+Backend Express avec une API claire et documentée, consommée aussi bien par le frontend Vue.js que par des outils tiers.
+
+## Architecture
+
+```
+Frontend Vue.js (SPA)
+  ├── Carte interactive (VueLeaflet / OpenStreetMap)
+  └── Tableau de bord en temps réel
+        ↓
+API REST Express
+        ↓
+PostgreSQL
+```
+
+## Ce qu'on a appris
+
+Premier projet fullstack d'équipe déployé en production. La gestion du déploiement, des variables d'environnement, de la base de données en production et des montées de version en conditions réelles a été la partie la plus formatrice — autant que le code lui-même.
+
+On a également fait face à des retours d'utilisateurs réels, ce qui a conduit à plusieurs itérations sur l'ergonomie du tableau de bord.
 
 ## Stack
-- Vue.js
-- Express
-- PostgreSQL
 
-## Statut GitHub
-Le projet est reference en ligne via codeky.fr. Aucun depot public clairement identifie sous ce nom sur le profil.
-
-## Media temporaires
-![Placeholder dashboard evenement](https://placehold.co/1600x900/111118/f59e0b?text=Event+Management+Dashboard)
-
-*Legende: cette image doit representer un tableau de bord avec planning, ressources, statut des taches et alertes.*
-
-![Placeholder GIF - mise a jour planning](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2w4N3QxNzBqNDhjOWd4bTB2M3N0b3czYjV3YjVjMHE3aW16eGU2YiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/26tn33aiTi1jkl6H6/giphy.gif)
-
-*Legende: ce GIF doit representer la mise a jour en direct d'un planning lors d'un changement d'assignation.*
-
-## Points forts a decrire
-1. Suivi des missions et ressources
-2. Cartographie ou geolocalisation
-3. API metier claire
-4. Retour terrain et iteration produit
+- **Vue.js** — frontend SPA
+- **Express** — API REST backend
+- **PostgreSQL** — base de données
+- **VueLeaflet** — cartographie (OpenStreetMap)
+- **JavaScript** — fullstack

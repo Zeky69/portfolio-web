@@ -1,32 +1,44 @@
-﻿# Site E-commerce
+# Site E-commerce
 
-## Resume
-Projet fullstack e-commerce realise en groupe, avec gestion catalogue, panier et persistance SQL.
+Projet académique · Groupe de 3 · 2022 · Premier projet fullstack en équipe — catalogue, panier, commandes.
 
-## Ce que la page doit montrer
-- Le parcours utilisateur: navigation > panier > commande
-- La structure technique: front + backend Flask + MySQL
-- Les apprentissages d'equipe
+## Contexte
+
+Premier projet web fullstack développé en groupe de 3 personnes dans le cadre de la première année de BUT Informatique. L'objectif était de construire un site e-commerce fonctionnel de bout en bout : navigation dans un catalogue, ajout au panier, passage de commande, gestion des produits côté admin.
+
+## Fonctionnalités
+
+**Côté client**
+- Catalogue avec filtres par catégorie et tri par prix
+- Fiche produit avec description et images
+- Panier persistant (session utilisateur)
+- Processus de commande en plusieurs étapes
+
+**Côté admin**
+- Gestion du catalogue (ajout, modification, suppression de produits)
+- Suivi des commandes avec changement de statut
+
+## Architecture
+
+```
+Templates HTML (Django/Flask)
+        ↓
+Backend Python (Flask + Django)
+        ↓
+MySQL
+```
+
+Le backend gère le routage, la logique métier (calcul du panier, gestion des stocks) et la communication avec la base MySQL.
+
+## Ce qu'on en a retenu
+
+Projet fondateur sur plusieurs points : comprendre le cycle requête/réponse HTTP, structurer une base de données relationnelle (produits, catégories, utilisateurs, commandes, lignes de commande), gérer l'état utilisateur avec les sessions, et travailler sur une base de code partagée en équipe avec Git.
+
+Les problèmes classiques du développement web sont apparus ici pour la première fois : conflits de merge, incohérences entre l'état du panier en session et la base, sécurisation basique des formulaires.
 
 ## Stack
-- Python
-- Flask
-- MySQL
 
-## Statut GitHub
-Aucun depot public exactement associe a ce projet n'a ete trouve sous ce nom sur le profil.
-
-## Media temporaires
-![Placeholder page catalogue](https://placehold.co/1600x900/111118/22c55e?text=Ecommerce+Catalog+UI)
-
-*Legende: cette image doit representer la page catalogue avec filtres, cartes produits et tri.*
-
-![Placeholder GIF - ajout panier et validation](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjFieXlmdTRnM3k0ZG9vdXQ2c3VwNG1xY3o3NjB2N2g5N3A2aHE0ZSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/L95W4wv8nnb9K/giphy.gif)
-
-*Legende: ce GIF doit representer un ajout au panier puis une progression vers la validation de commande.*
-
-## Points forts a decrire
-1. Modele de donnees produit/panier
-2. Routes backend principales
-3. Gestion etat utilisateur
-4. Bonnes pratiques de securisation de base
+- **Python** — backend et logique métier
+- **Flask / Django** — framework web
+- **MySQL** — base de données
+- **HTML / CSS** — templates frontend

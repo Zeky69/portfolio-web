@@ -1,33 +1,46 @@
-﻿# Agent Domotique IA
+# Agent Domotique IA
 
-## Resume
-Agent IA local pour maison connectee: comprehension d'intentions, sortie JSON structuree et execution via Home Assistant.
+Projet personnel. IA locale intégrée à Home Assistant pour piloter la maison connectée en langage naturel — sans cloud, sans API externe.
 
-## Ce que la page doit montrer
-- Pourquoi local: confidentialite et latence faible
-- Pourquoi structure: actions robustes et tracables
-- Pourquoi utile: pilotage naturel des appareils
+## Contexte
+
+La plupart des assistants vocaux envoient les commandes vers des serveurs distants. Ce projet part du principe inverse : tout tourne en local, le modèle de langage est exécuté sur ma propre machine via Ollama, et les actions sur les appareils passent uniquement par Home Assistant sur le réseau local.
+
+## Comment ça fonctionne
+
+L'utilisateur envoie une commande en langage naturel (ex. : *"éteins les lumières du salon et ferme les volets"*). L'agent décompose l'intention en appels de fonctions structurés (function calling), chaque appel correspondant à une action précise dans Home Assistant.
+
+```
+Entrée : "allume la lampe du bureau à 60%"
+        ↓
+Parsing LLM (Mistral local via Ollama)
+        ↓
+{
+  "function": "set_light",
+  "entity_id": "light.bureau",
+  "brightness": 153
+}
+        ↓
+Appel API Home Assistant → action exécutée
+```
+
+## Ce qui était technique
+
+**Schémas JSON stricts.** Le point délicat du function calling avec un LLM local, c'est de garantir que la sortie est toujours un JSON valide et conforme au schéma attendu. J'ai implémenté une couche de validation et de retry pour les cas où le modèle produit une sortie malformée.
+
+**Gestion des intentions ambiguës.** Quand la commande est incomplète ou contradictoire (ex. : *"mets une ambiance"* sans préciser laquelle), l'agent demande une clarification plutôt que de deviner.
+
+**Mode sécurisé.** Certaines actions (coupure générale, alarme) passent par une confirmation explicite avant exécution.
+
+**Journalisation.** Toutes les commandes et leurs résultats sont enregistrés avec un horodatage pour traçabilité et debug.
 
 ## Stack
-- Python
-- Ollama / Mistral (local)
-- FastAPI
-- Home Assistant
 
-## Reference GitHub pertinente
-- [call-me-maybe](https://github.com/Zeky69/call-me-maybe): introduction au function calling avec LLM.
+- **Python** — logique de l'agent, orchestration
+- **Ollama** — exécution locale du LLM (Mistral)
+- **FastAPI** — exposition de l'agent en API REST
+- **Home Assistant** — actionneurs domotiques (lumières, volets, prises)
 
-## Media temporaires
-![Placeholder architecture agent domotique](https://placehold.co/1600x900/111118/818cf8?text=LLM+Local+%E2%86%92+JSON+%E2%86%92+Home+Assistant)
+## Référence GitHub
 
-*Legende: cette image doit representer le schema d'architecture complet: utilisateur, LLM local, couche API, et actionneur domotique.*
-
-![Placeholder GIF - commande vocale vers action](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjBheWU5d2ptYjh4b2F2dWJmZDB2M2NpdjI3YzVuNGRudzh2N2Q0YiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7TKsQ8UQh0gJ2f5C/giphy.gif)
-
-*Legende: ce GIF doit representer une commande utilisateur transformee en action concrete (ex: allumer lumiere, fermer volets).* 
-
-## Points forts a decrire
-1. Schema strict pour le function calling
-2. Gestion des erreurs d'intention
-3. Journalisation des commandes
-4. Mode securise pour actions sensibles
+Le projet [call-me-maybe](https://github.com/Zeky69/call-me-maybe) est une introduction au function calling avec LLM — base de réflexion pour cet agent.

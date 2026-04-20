@@ -1,31 +1,27 @@
-﻿# GameJAM Multijoueur
+# GameJAM Multijoueur
 
-## Resume
-Jeu multijoueur concu en equipe pendant une GameJAM avec contrainte de temps forte.
+GameJAM Scientifique 2023 · Équipe de 7 · Jeu multijoueur en temps réel développé sous contrainte de temps.
 
-## Ce que la page doit montrer
-- Le contexte court et intense de la GameJAM
-- La collaboration en equipe de 7
-- La livraison rapide d'un gameplay fonctionnel
+## Contexte
+
+Projet développé lors de la GameJAM Scientifique organisée à l'IUT. Contrainte : livrer un jeu jouable en quelques jours, en équipe de 7 personnes de profils différents (développeurs, designers, non-techniciens).
+
+L'équipe s'est organisée en sous-groupes : deux personnes sur le backend réseau, trois sur le frontend et la logique de jeu, deux sur le game design et les assets.
+
+## Ce qu'on a construit
+
+Jeu multijoueur en temps réel où plusieurs joueurs se connectent depuis leurs navigateurs. L'état du jeu (positions, scores, événements) est synchronisé en continu via Socket.IO.
+
+La contrainte principale était la **latence** : dans un jeu, un décalage de 200 ms entre ce que le joueur fait et ce qu'il voit rend l'expérience injouable. On a priorisé la réactivité côté client en affichant immédiatement l'action locale, puis en corrigeant si le serveur renvoie un état différent (reconciliation).
+
+## Organisation sous contrainte
+
+- **Découpage rapide des responsabilités** dès la première heure — pas de superposition sur les mêmes fichiers
+- **Interface minimale mais jouable** — on a coupé plusieurs features pour finir proprement ce qu'on avait commencé
+- Intégration continue informelle : chacun push, les autres testent en direct
 
 ## Stack
-- JavaScript
-- Socket.io
 
-## Statut GitHub
-Aucun depot public explicite correspondant n'a ete identifie sur le profil sous ce nom.
-
-## Media temporaires
-![Placeholder prototype gamejam](https://placehold.co/1600x900/111118/a855f7?text=GameJAM+Prototype)
-
-*Legende: cette image doit representer un niveau de jeu en cours avec HUD, score et plusieurs joueurs connectes.*
-
-![Placeholder GIF - session de jeu coop/versus](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWQ2d3FybDB2ZGV6N2N4eTR6aXQ0eXE4eDNzOXk4MHE0dGQxM2FlNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3orieYWe02pGslNpCw/giphy.gif)
-
-*Legende: ce GIF doit representer une sequence courte de partie multijoueur avec interactions entre joueurs.*
-
-## Points forts a decrire
-1. Decoupage rapide des roles equipe
-2. Priorisation des features critiques
-3. Integration reseau en temps limite
-4. Retrospective post-jam
+- **JavaScript** — logique de jeu frontend
+- **Socket.IO** — synchronisation temps réel entre joueurs
+- **HTML / CSS** — interface du jeu

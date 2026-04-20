@@ -1,33 +1,43 @@
-﻿# Outil d'Administration Systeme Distante
+# Outil d'Administration Système Distante
 
-## Resume
-Solution de supervision et pilotage de postes clients a distance avec un panneau web central.
+Projet personnel. Solution de supervision et de pilotage de postes clients à distance, avec panneau de contrôle web et communication bas niveau en C.
 
-## Ce que la page doit montrer
-- Le besoin: administrer plusieurs machines efficacement
-- La techno: communication bas niveau et orchestration centralisee
-- L'impact: interventions plus rapides
+## Contexte
+
+Projet d'apprentissage sur les communications réseau bas niveau et l'administration système. L'objectif était de construire, sans framework, un système permettant de contrôler plusieurs machines distantes depuis un seul panneau web — comprendre concrètement ce que font des outils comme VNC ou SSH sous le capot.
+
+## Architecture
+
+```
+Panneau web (navigateur)
+        ↓ HTTP
+Serveur central (C)
+        ↓ Sockets TCP
+Agents clients (C) — un par machine distante
+```
+
+**Serveur central** — reçoit les commandes depuis l'interface web, les route vers le bon client, agrège les réponses.
+
+**Agents clients** — processus léger en C qui tourne sur chaque machine administrée. Écoute les instructions, les exécute et renvoie le résultat.
+
+**Interface web** — panneau HTML/JS minimaliste pour envoyer des commandes et visualiser les retours.
+
+## Fonctionnalités
+
+- **Exécution de commandes à distance** — une commande envoyée depuis le panneau s'exécute sur la machine cible et renvoie la sortie
+- **Diffusion d'images** — affichage d'une image sur l'écran de plusieurs postes simultanément (utile pour afficher des consignes ou du contenu en salle)
+- **Diffusion d'animations** — envoi de séquences animées sur les écrans clients
+- **Supervision multi-postes** — le panneau liste les machines connectées avec leur statut
+
+## Ce qui était technique
+
+Implémenter un serveur HTTP basique en C pur (sans librairie externe) a demandé de comprendre le protocole HTTP au niveau des en-têtes et du parsing des requêtes. De même pour les sockets TCP : gestion des connexions multiples avec `select()`, sérialisation des données, gestion des déconnexions inattendues.
+
+C'est le type de projet où on comprend pourquoi les abstractions réseau existent — et pourquoi elles sont utiles.
 
 ## Stack
-- C
-- Sockets
-- HTTP
-- Interface Web
 
-## Statut GitHub
-Aucun depot public exactement associe n'a ete detecte sur le profil. Le texte est optimise pour ton portfolio.
-
-## Media temporaires
-![Placeholder dashboard supervision machines](https://placehold.co/1600x900/111118/f97316?text=Supervision+Postes+Distance)
-
-*Legende: cette image doit representer le dashboard admin avec la liste des machines, leur statut et les actions disponibles.*
-
-![Placeholder GIF - execution commande distante](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXpmN2N2YzA4NWEwM2M2c2FhNnYxNDBxZ3EyMGM2a3RiYzJ1MXJ2diZlcD12MV9naWZzX3NlYXJjaCZjdD1n/coxQHKASG60HrHtvkt/giphy.gif)
-
-*Legende: ce GIF doit representer une commande envoyee depuis le panneau web puis executee sur un poste client.*
-
-## Points forts a decrire
-1. Communication client-serveur fiable
-2. Canal de commande securise
-3. Interface de controle central
-4. Scalabilite sur plusieurs postes
+- **C** — serveur central et agents clients
+- **Sockets TCP** — communication bas niveau
+- **HTTP** — protocole entre le navigateur et le serveur central
+- **HTML / JavaScript** — interface de contrôle web

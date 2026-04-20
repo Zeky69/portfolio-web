@@ -1,34 +1,47 @@
-﻿# Bomberman IA
+# Bomberman IA
 
-## Resume
-Projet jeu multijoueur avec agents entraines en reinforcement learning, combine backend et frontend dedies.
+GameJAM Scientifique 2024 · **1er prix du public** · Architecture split front/back avec agents entraînés par apprentissage par renforcement (PPO).
 
-## Repositories GitHub associes
-- [Back-end-Bomberman](https://github.com/Zeky69/Back-end-Bomberman)
-- [Bomberman-front-end](https://github.com/Zeky69/Bomberman-front-end)
+## Contexte
 
-## Ce que la page doit montrer
-- L'architecture split front/back
-- Le gameplay multijoueur en temps reel
-- L'entrainement des agents IA
+Projet développé dans le cadre de la GameJAM Scientifique 2024. L'objectif était de créer un jeu Bomberman multijoueur avec des agents IA capables de jouer contre des humains. Le projet a remporté le **1er prix du public**.
+
+Architecture divisée en deux dépôts distincts :
+- [Back-end-Bomberman](https://github.com/Zeky69/Back-end-Bomberman) — moteur de jeu, logique IA, WebSocket
+- [Bomberman-front-end](https://github.com/Zeky69/Bomberman-front-end) — interface de jeu Vue.js / Phaser
+
+## Architecture
+
+```
+Frontend (Vue.js + Phaser)
+        ↓ WebSocket
+Backend Python (FastAPI)
+  ├── Moteur de jeu (grille, bombes, explosions)
+  ├── Agents PPO (TensorFlow)
+  └── Redis (état de jeu partagé)
+```
+
+Le backend gère l'état canonique du jeu. Le frontend est un rendu pur — il reçoit l'état à chaque tick et affiche sans recalculer la logique.
+
+## Agents IA
+
+Les agents sont entraînés avec l'algorithme **PPO (Proximal Policy Optimization)** via TensorFlow. L'état du jeu est encodé en grille 2D (position des joueurs, bombes actives, murs, power-ups) et passé en entrée d'un réseau de neurones convolutif.
+
+L'entraînement s'est fait en **self-play** — les agents jouent les uns contre les autres, ce qui évite le surapprentissage contre un adversaire fixe.
+
+Actions disponibles : déplacement dans 4 directions + poser une bombe + rester.
+
+## Ce qui était difficile
+
+**Synchronisation temps réel.** Avec plusieurs joueurs connectés simultanément, garantir que tous voient exactement le même état de jeu au même moment a nécessité une gestion fine des ticks serveur et des deltas envoyés aux clients.
+
+**Récompenses IA.** Définir une fonction de récompense pertinente pour Bomberman n'est pas trivial — récompenser la survie, les éliminations, ou les deux ? J'ai testé plusieurs variantes avant de trouver un équilibre qui donne des agents agressifs mais pas suicidaires.
 
 ## Stack
-- Python (backend)
-- Vue.js + Vite (frontend)
-- WebSocket
-- TensorFlow/PPO (selon ta version projet)
 
-## Media temporaires
-![Placeholder interface jeu bomberman](https://placehold.co/1600x900/111118/ef4444?text=Bomberman+Gameplay+UI)
-
-*Legende: cette image doit representer l'interface de jeu avec la grille, les joueurs, les bombes et les obstacles.*
-
-![Placeholder GIF - partie multijoueur](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWQ2d3FybDB2ZGV6N2N4eTR6aXQ0eXE4eDNzOXk4MHE0dGQxM2FlNiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3orieYWe02pGslNpCw/giphy.gif)
-
-*Legende: ce GIF doit representer un enchainement deplacements + pose de bombe + explosion + elimination en temps reel.*
-
-## Points forts a decrire
-1. Communication temps reel entre clients
-2. Separation claire des responsabilites front/back
-3. Optimisation de la boucle de jeu
-4. Phase d'experimentation IA (PPO)
+- **Python** — moteur de jeu, entraînement IA
+- **TensorFlow** — modèle PPO
+- **Vue.js + Phaser** — interface de jeu
+- **FastAPI** — API et gestion WebSocket
+- **Redis** — état de jeu partagé
+- **Docker** — conteneurisation du backend

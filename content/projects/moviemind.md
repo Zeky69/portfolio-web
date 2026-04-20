@@ -1,31 +1,35 @@
-﻿# MovieMind
+# MovieMind
 
-## Resume
-Application autour de la recommandation de films, orientee experience utilisateur et suggestions personnalisees.
+Projet personnel · 2024 · Système de recommandation de films par embeddings vectoriels.
 
-## Repository GitHub associe
-- [MovieMind](https://github.com/Zeky69/MovieMind)
+[Dépôt GitHub](https://github.com/Zeky69/MovieMind)
 
-## Ce que la page doit montrer
-- Le probleme: trop de choix, peu de pertinence
-- La solution: recommandations basees sur des representations vectorielles
-- Le resultat: suggestions plus utiles et plus rapides
+## Contexte
 
-## Stack (d'apres le repo)
-- TypeScript
-- Application web moderne (a preciser selon implementation)
+Projet de recherche personnelle sur les systèmes de recommandation. L'idée de départ : comprendre comment les plateformes comme Netflix ou Letterboxd construisent leurs suggestions — et implémenter une version fonctionnelle de A à Z.
 
-## Media temporaires
-![Placeholder ecran recommandations](https://placehold.co/1600x900/111118/14b8a6?text=MovieMind+Recommendations)
+## Comment ça marche
 
-*Legende: cette image doit representer la page de recommandations avec affiche film, score de similarite et filtres utilisateurs.*
+Chaque film est représenté par un **vecteur d'embeddings** calculé à partir de ses métadonnées (titre, synopsis, genres, mots-clés). Deux films avec des embeddings proches sont considérés comme similaires.
 
-![Placeholder GIF - interaction utilisateur](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXByc2dwdm5ia2ZwM2F4czBna3l2M2Q2OWw3d2Y2eDZxMmN4MW1heiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l0HlNaQ6gWfllcjDO/giphy.gif)
+Quand un utilisateur sélectionne un film (ou plusieurs), le système calcule la **similarité cosinus** entre ce film et tous les autres du catalogue, puis retourne les N plus proches.
 
-*Legende: ce GIF doit representer un utilisateur qui note/selectionne un film puis voit la liste des recommandations se mettre a jour.*
+```
+Film sélectionné → vecteur d'embedding
+        ↓
+Similarité cosinus avec tous les films du catalogue
+        ↓
+Top-N films les plus similaires
+```
 
-## Points forts a decrire
-1. Construction du pipeline de recommandation
-2. Mesure de similarite (cosinus)
-3. UX de navigation dans les suggestions
-4. Possibilites d'amelioration (cold start, feedback)
+## Ce qui était intéressant
+
+**La qualité des embeddings détermine tout.** Un embedding basé uniquement sur les genres donne des résultats plats (tous les films d'action se ressemblent). L'ajout du synopsis et des mots-clés thématiques améliore significativement la pertinence des suggestions.
+
+**Scalabilité.** Calculer la similarité cosinus contre un catalogue de 10 000 films en temps réel est faisable, mais avec 500 000 films ça devient un problème de performance. J'ai exploré l'indexation vectorielle (FAISS) comme solution pour les grands catalogues.
+
+## Stack
+
+- **Python** — pipeline de traitement et de recommandation
+- **Embeddings** — représentations vectorielles des films
+- **NumPy / SciPy** — calculs de similarité
