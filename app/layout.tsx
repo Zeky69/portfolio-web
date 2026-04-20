@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   title: "Zekeriya AKBURAK – Développeur Fullstack & IA",
   description:
     "Portfolio de Zekeriya AKBURAK, Développeur Fullstack & IA. Diplômé d'un BUT Informatique, étudiant à l'École 42 de Mulhouse.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
