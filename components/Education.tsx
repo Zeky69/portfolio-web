@@ -6,16 +6,16 @@ import { fadeUp, slideRight } from "@/lib/animations";
 
 const education = [
   {
-    period: "2026 – 2029",
-    title: "École d'Ingénieur Informatique",
-    subtitle: "En alternance – Admission en cours de préparation",
-    accent: false,
+    period: "2026 – Présent",
+    title: "Diplôme d'Ingénieur – Informatique et Systèmes d'Information",
+    subtitle: "UTT – Université de Technologie de Troyes · 1re année de branche · Formation initiale",
+    accent: true,
   },
   {
-    period: "2025 – Présent",
+    period: "2025 – 2026",
     title: "École 42",
     subtitle: "Campus de Mulhouse · Piscine validée",
-    accent: true,
+    accent: false,
   },
   {
     period: "2022 – 2025",

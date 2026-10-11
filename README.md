@@ -1,6 +1,6 @@
 # Zekeriya AKBURAK — Portfolio
 
-**Développeur Fullstack & IA** · École 42 Mulhouse · Audincourt (25)
+**Développeur Fullstack & IA** · UTT · Troyes (10) / Audincourt (25)
 
 → [codeky.fr](https://codeky.fr) · [github.com/Zeky69](https://github.com/Zeky69) · zek.akburak@gmail.com
 
@@ -8,9 +8,7 @@
 
 ## Qui je suis
 
-Diplômé d'un BUT Informatique (IUT Nord-Franche-Comté, 2022–2025), actuellement étudiant à l'École 42 Mulhouse. 1 an d'expérience terrain : alternance au SDIS 25 sur un outil d'analyse opérationnelle, stage R&D au laboratoire FEMTO-ST sur l'apprentissage fédéré appliqué aux énergies renouvelables.
-
-Je cherche une **alternance 2025–2029** dans le développement applicatif ou l'IA. Mobile sur toute la France, télétravail accepté.
+Diplômé d'un BUT Informatique (IUT Nord-Franche-Comté, 2022–2025), passé par l'École 42 Mulhouse, aujourd'hui élève ingénieur à l'UTT (Université de Technologie de Troyes), en première année de branche Informatique et Systèmes d'Information, en formation initiale. 1 an d'expérience terrain : alternance au SDIS 25 sur un outil d'analyse opérationnelle, stage R&D au laboratoire FEMTO-ST sur l'apprentissage fédéré appliqué aux énergies renouvelables.
 
 ---
 
@@ -111,4 +109,4 @@ Le déploiement est automatique à chaque push sur `main` via `.github/workflows
 
 - Email — [zek.akburak@gmail.com](mailto:zek.akburak@gmail.com)
 - GitHub — [@Zeky69](https://github.com/Zeky69)
-- Localisation — Audincourt (25) · Mobile France · Télétravail OK
+- Localisation — Troyes (10) · Audincourt (25)

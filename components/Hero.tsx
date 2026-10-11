@@ -12,8 +12,8 @@ function Terminal() {
     tone?: "muted" | "accent" | "text";
   }> = [
     { kind: "prompt", text: "whoami" },
-    { kind: "out", text: "  Zekeriya Akburak — Audincourt, FR (25)" },
-    { kind: "out", text: "  Fullstack & IA · École 42 Mulhouse", tone: "muted" },
+    { kind: "out", text: "  Zekeriya Akburak — Troyes · Audincourt, FR" },
+    { kind: "out", text: "  Fullstack & IA · UTT Troyes", tone: "muted" },
     { kind: "blank" },
     { kind: "prompt", text: "cat stack.txt" },
     { kind: "out", text: "  lang    ", value: "Python · TypeScript · C · Java" },
@@ -21,8 +21,8 @@ function Terminal() {
     { kind: "out", text: "  web     ", value: "Next.js · FastAPI · PostgreSQL" },
     { kind: "blank" },
     { kind: "prompt", text: "status" },
-    { kind: "out", text: "  ● available for alternance 2025→2029", tone: "accent" },
-    { kind: "out", text: "  ● cursus 42 in progress", tone: "muted" },
+    { kind: "out", text: "  ● élève ingénieur · UTT Troyes", tone: "accent" },
+    { kind: "out", text: "  ● branche ISI · formation initiale", tone: "muted" },
     { kind: "out", text: "  ● 10+ projects on github.com/Zeky69", tone: "muted" },
   ];
 
@@ -41,7 +41,7 @@ function Terminal() {
           <span className="w-3 h-3 rounded-full bg-accent/80" />
         </div>
         <span className="font-mono text-[11px] text-muted tracking-wide">
-          zeky@42mulhouse: ~
+          zeky@utt: ~
         </span>
         <span className="w-12" />
       </div>
@@ -153,9 +153,9 @@ export default function Hero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-60" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent" />
               </span>
-              <span className="text-accent">disponible</span>
+              <span className="text-accent">élève ingénieur</span>
               <span className="text-muted">·</span>
-              <span>alternance · 2025—2029</span>
+              <span>UTT Troyes · branche ISI</span>
             </motion.div>
 
             {/* Nom */}
@@ -193,7 +193,8 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.45 }}
               className="text-muted text-sm leading-relaxed mb-10 max-w-lg"
             >
-              École 42 Mulhouse · BUT Informatique IUT Nord-Franche-Comté · 1
+              Élève ingénieur à l&apos;UTT (branche Informatique et Systèmes
+              d&apos;Information) · BUT Informatique IUT Nord-Franche-Comté · 1
               an sur le terrain au SDIS 25 (Optimops) et au laboratoire
               FEMTO-ST (apprentissage fédéré).
             </motion.p>
@@ -240,8 +241,8 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.75 }}
               className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-6 border-t border-border"
             >
-              <Fact label="Basé à" value="Audincourt (25)" />
-              <Fact label="École" value="42 Mulhouse" />
+              <Fact label="Basé à" value="Troyes · Audincourt" />
+              <Fact label="École" value="UTT Troyes" />
               <Fact label="Langues" value="FR · TR · EN" />
               <Fact label="Projets" value="10+ shipped" />
             </motion.div>

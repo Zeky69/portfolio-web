@@ -1,8 +1,8 @@
 # Zekeriya AKBURAK – CV & Profil
 
-**Développeur Fullstack & IA** – Alternance
+**Développeur Fullstack & IA** – Élève ingénieur UTT
 
-Diplômé d'un BUT Informatique et étudiant à l'École 42 (Mulhouse), je suis à la recherche d'un emploi en France dans le développement applicatif ou l'IA. Ouvert pour une alternance. Profil polyvalent (Web, Mobile, IA, Automatisation), mobile sur toute la France et ouvert au télétravail. Titulaire du permis B.
+Diplômé d'un BUT Informatique et élève ingénieur à l'UTT (Université de Technologie de Troyes), en première année de branche Informatique et Systèmes d'Information, en formation initiale. Profil polyvalent (Web, Mobile, IA, Automatisation). Titulaire du permis B.
 
 ---
 
@@ -11,8 +11,7 @@ Diplômé d'un BUT Informatique et étudiant à l'École 42 (Mulhouse), je suis 
 | Champ | Détail |
 | --- | --- |
 | Email | [zek.akburak@gmail.com](mailto:zek.akburak@gmail.com) |
-| Localisation | Audincourt (25) |
-| Mobilité | France – Télétravail accepté |
+| Localisation | Troyes (10) · Audincourt (25) |
 | Permis | Permis B & Véhiculé |
 | GitHub | [github.com/Zeky69](http://github.com/Zeky69) |
 
@@ -125,13 +124,13 @@ Projet personnel réalisé dans un but d'apprentissage des communications résea
 
 ## 🎓 Formation
 
-### École d'Ingénieur Informatique *(en alternance)*
+### Diplôme d'Ingénieur – Informatique et Systèmes d'Information *(formation initiale)*
 
-2026 – 2029 · *Admission en cours de préparation*
+2026 – Présent · UTT – Université de Technologie de Troyes · 1re année de branche
 
 ### École 42
 
-2025 – Présent · Campus de Mulhouse – Piscine validée
+2025 – 2026 · Campus de Mulhouse – Piscine validée
 
 ### BUT Informatique *(Obtenu)*
 

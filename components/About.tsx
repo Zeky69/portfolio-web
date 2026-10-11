@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { MapPin, Mail, Globe, Car, Languages } from "lucide-react";
+import { MapPin, Mail, Car, Languages } from "lucide-react";
 import {
   fadeUp,
   slideLeft,
@@ -19,9 +19,8 @@ function SectionLabel({ label }: { label: string }) {
 }
 
 const details = [
-  { icon: MapPin, label: "Localisation", value: "Audincourt (25)" },
+  { icon: MapPin, label: "Localisation", value: "Troyes (10) · Audincourt (25)" },
   { icon: Mail, label: "Email", value: "zek.akburak@gmail.com", href: "mailto:zek.akburak@gmail.com" },
-  { icon: Globe, label: "Mobilité", value: "France entière · Télétravail" },
   { icon: Car, label: "Permis", value: "Permis B – Véhiculé" },
   { icon: Languages, label: "Langues", value: "Français · Turc · Anglais B1" },
 ];
@@ -57,15 +56,15 @@ export default function About() {
             style={{ lineHeight: "1.8" }}
           >
             Né en 2004, je code depuis mes années de lycée. Mon parcours mêle
-            formation académique rigoureuse (BUT Informatique, École 42) et
+            formation académique rigoureuse (BUT Informatique, École 42, UTT) et
             expériences professionnelles concrètes en entreprise et laboratoire
             de recherche.
           </p>
           <p className="text-muted leading-relaxed" style={{ lineHeight: "1.8" }}>
-            Je suis à la recherche d&apos;une{" "}
-            <span className="text-text font-medium">alternance</span> en
-            développement applicatif ou IA. Mobile sur toute la France, ouvert
-            au télétravail.
+            Je suis aujourd&apos;hui{" "}
+            <span className="text-text font-medium">élève ingénieur</span> à
+            l&apos;UTT (Troyes), en première année de branche Informatique et
+            Systèmes d&apos;Information, en formation initiale.
           </p>
         </motion.div>
 

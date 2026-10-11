@@ -96,8 +96,8 @@ export default function Contact() {
             className="text-muted leading-relaxed max-w-md"
             style={{ lineHeight: "1.8" }}
           >
-            Disponible pour une alternance, un stage ou toute opportunité en
-            développement applicatif ou IA. N&apos;hésitez pas à me contacter.
+            Ouvert aux stages, projets et opportunités en développement
+            applicatif ou IA. N&apos;hésitez pas à me contacter.
           </p>
         </motion.div>
 

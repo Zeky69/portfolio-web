@@ -19,7 +19,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "Zekeriya AKBURAK – Développeur Fullstack & IA",
   description:
-    "Portfolio de Zekeriya AKBURAK, Développeur Fullstack & IA. Diplômé d'un BUT Informatique, étudiant à l'École 42 de Mulhouse.",
+    "Portfolio de Zekeriya AKBURAK, Développeur Fullstack & IA. Diplômé d'un BUT Informatique, élève ingénieur à l'UTT (Troyes), branche Informatique et Systèmes d'Information.",
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
