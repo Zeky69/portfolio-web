@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Mail, Phone, Github } from "lucide-react";
+import { Mail, Github } from "lucide-react";
 import { fadeUp, staggerContainer, staggerContainerSlow } from "@/lib/animations";
 
 const contacts = [
@@ -11,12 +11,6 @@ const contacts = [
     label: "Email",
     value: "zek.akburak@gmail.com",
     href: "mailto:zek.akburak@gmail.com",
-  },
-  {
-    icon: Phone,
-    label: "Téléphone",
-    value: "07 68 43 93 56",
-    href: "tel:+33768439356",
   },
   {
     icon: Github,

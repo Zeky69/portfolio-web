@@ -10,7 +10,6 @@ Diplômé d'un BUT Informatique et étudiant à l'École 42 (Mulhouse), je suis 
 
 | Champ | Détail |
 | --- | --- |
-| Téléphone | 07 68 43 93 56 |
 | Email | [zek.akburak@gmail.com](mailto:zek.akburak@gmail.com) |
 | Localisation | Audincourt (25) |
 | Mobilité | France – Télétravail accepté |
