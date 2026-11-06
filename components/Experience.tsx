@@ -1,129 +1,154 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { fadeUp, slideRight, staggerContainer } from "@/lib/animations";
+import { motion, useInView, useScroll, useSpring } from "framer-motion";
+import SectionHeader from "@/components/SectionHeader";
+import { easeExpo } from "@/lib/animations";
 
 const experiences = [
   {
-    period: "2024 – 2025",
-    type: "Alternance",
-    role: "Développeur Informatique",
-    company: "SDIS25 – Service Départemental d'Incendie et de Secours (Doubs)",
+    period: "2024 — 2025",
+    type: "Alternance · 1 an",
+    role: "Développeur informatique",
+    company: "SDIS 25",
+    companyFull: "Service Départemental d'Incendie et de Secours du Doubs",
     description:
-      "Développement d'Optimops, solution de gestion et d'analyse des données opérationnelles des pompiers. Tableaux de bord analytiques, génération de rapports et simulations via jumeau numérique.",
-    tags: ["Vue.js", "Python", "MongoDB", "Flask"],
+      "Développement d'Optimops, la solution de gestion et d'analyse des données opérationnelles des pompiers du Doubs : tableaux de bord analytiques, génération de rapports et simulations via un jumeau numérique.",
+    highlights: ["Tableaux de bord analytiques", "Génération de rapports", "Jumeau numérique"],
+    tags: ["Vue.js", "Python", "Flask", "MongoDB"],
   },
   {
-    period: "Avr – Juin 2024",
+    period: "Avr — Juin 2024",
     type: "Stage R&D",
-    role: "Recherche & Développement – IA",
-    company: "Laboratoire FEMTO-ST",
+    role: "Recherche & développement — IA",
+    company: "FEMTO-ST",
+    companyFull: "Laboratoire FEMTO-ST",
     description:
-      "Implémentation de modèles d'apprentissage fédéré (Federated Learning) pour optimiser la prévision de consommation et de production d'énergie renouvelable (solaire, éolien).",
+      "Implémentation de modèles d'apprentissage fédéré (Federated Learning) pour améliorer la prévision de consommation et de production d'énergies renouvelables (solaire, éolien).",
+    highlights: ["Federated Learning", "Prévision énergétique", "Solaire & éolien"],
     tags: ["Python", "TensorFlow", "Scikit-Learn"],
   },
 ];
 
-function TimelineItem({
+function ExperienceItem({
   exp,
   index,
-  isInView,
 }: {
-  exp: (typeof experiences)[0];
+  exp: (typeof experiences)[number];
   index: number;
-  isInView: boolean;
 }) {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
+
   return (
-    <motion.article
-      variants={slideRight}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      transition={{ delay: index * 0.15 }}
-      className="relative grid md:grid-cols-4 gap-4 md:gap-10 group"
+    <article
+      ref={ref}
+      className="group relative grid gap-8 py-14 md:grid-cols-12 md:gap-10 md:py-20"
     >
-      {/* Timeline dot */}
-      <div className="hidden md:flex absolute left-[calc(25%-1.25rem)] top-0 flex-col items-center h-full pointer-events-none">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : { scale: 0 }}
-          transition={{ delay: index * 0.15 + 0.2, type: "spring", stiffness: 400 }}
-          className="w-3 h-3 rounded-full bg-accent border-2 border-bg z-10 mt-1"
-        />
-        {index < experiences.length - 1 && (
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
-            transition={{ delay: index * 0.15 + 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex-1 w-px bg-gradient-to-b from-accent/40 to-transparent origin-top"
-          />
-        )}
+      {/* Nœud de la timeline */}
+      <motion.span
+        className="absolute left-0 top-[4.4rem] hidden h-3 w-3 -translate-x-[5.5px] rounded-full border-2 border-bg bg-accent md:block md:top-[6.1rem]"
+        initial={{ scale: 0 }}
+        animate={{ scale: inView ? 1 : 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 18, delay: 0.2 }}
+      />
+
+      <div className="md:col-span-4 md:pl-12">
+        <div className="md:sticky md:top-32">
+          <motion.p
+            initial={{ opacity: 0, x: -20 }}
+            animate={inView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.9, ease: easeExpo }}
+            className="font-mono text-xs text-accent-light"
+          >
+            {exp.period}
+          </motion.p>
+          <div className="mt-4 overflow-hidden">
+            <motion.p
+              initial={{ y: "100%" }}
+              animate={{ y: inView ? "0%" : "100%" }}
+              transition={{ duration: 1.1, ease: easeExpo, delay: 0.05 }}
+              className="text-[clamp(3rem,6.5vw,6rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-text"
+            >
+              {exp.company}
+            </motion.p>
+          </div>
+          <p className="mt-3 font-mono text-xs text-muted">{exp.type}</p>
+        </div>
       </div>
 
-      {/* Meta */}
-      <div className="md:col-span-1 pt-0.5">
-        <p className="text-xs font-medium text-accent/80 uppercase tracking-wide">
-          {exp.period}
-        </p>
-        <p className="text-xs text-muted mt-1">{exp.type}</p>
-      </div>
-
-      {/* Content */}
-      <div className="md:col-span-3 pb-12">
-        <div className="bg-surface border border-border rounded-2xl p-6 group-hover:border-border-hover transition-colors duration-300">
-          <h3 className="font-heading font-semibold text-text text-lg mb-1">
+      <motion.div
+        className="md:col-span-8"
+        initial={{ clipPath: "inset(0% 0% 100% 0%)", opacity: 0 }}
+        animate={
+          inView
+            ? { clipPath: "inset(0% 0% 0% 0%)", opacity: 1 }
+            : {}
+        }
+        transition={{ duration: 1.2, ease: easeExpo, delay: 0.15 + index * 0.05 }}
+      >
+        <div className="relative overflow-hidden rounded-[28px] border border-border bg-surface p-7 transition-colors duration-500 group-hover:border-border-hover md:p-10">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent/20 opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-100" />
+          <h3 className="text-2xl font-semibold tracking-[-0.03em] text-text md:text-4xl">
             {exp.role}
           </h3>
-          <p className="text-accent text-sm font-medium mb-4">{exp.company}</p>
-          <p className="text-muted text-sm leading-relaxed mb-5" style={{ lineHeight: "1.75" }}>
+          <p className="mt-2 text-sm text-muted">{exp.companyFull}</p>
+          <p className="mt-8 max-w-2xl text-base leading-relaxed text-muted-light md:text-lg">
             {exp.description}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {exp.tags.map((tag) => (
+
+          <ul className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
+            {exp.highlights.map((h) => (
+              <li key={h} className="bg-surface px-4 py-4 text-sm text-text">
+                <span className="mb-2 block h-1 w-6 rounded-full bg-gradient-to-r from-accent to-ice" />
+                {h}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            {exp.tags.map((t) => (
               <span
-                key={tag}
-                className="text-xs px-3 py-1 rounded-full bg-bg border border-border text-muted-light"
+                key={t}
+                className="rounded-full border border-border-hover px-3 py-1.5 font-mono text-xs text-muted-light"
               >
-                {tag}
+                {t}
               </span>
             ))}
           </div>
         </div>
-      </div>
-    </motion.article>
+      </motion.div>
+    </article>
   );
 }
 
 export default function Experience() {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.7", "end 0.6"],
+  });
+  const line = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
 
   return (
-    <section
-      id="experience"
-      ref={ref}
-      className="py-28 px-4 sm:px-6 lg:px-8 border-t border-border"
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="mb-16"
-        >
-          <p className="text-accent text-xs font-medium tracking-widest uppercase mb-4">
-            Parcours
-          </p>
-          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-text">
-            Expériences professionnelles
-          </h2>
-        </motion.div>
-
-        {/* Timeline */}
-        <div className="space-y-0">
+    <section id="experience" className="relative px-5 py-32 sm:px-8 md:py-44 lg:px-12">
+      <div className="mx-auto max-w-[1600px]">
+        <SectionHeader
+          index="03"
+          label="Parcours pro"
+          title="Expériences"
+          intro="Un an sur le terrain : de la donnée opérationnelle des pompiers à la recherche en IA distribuée."
+        />
+        <div ref={ref} className="relative">
+          {/* Ligne qui se dessine au scroll */}
+          <div className="absolute bottom-0 left-0 top-0 hidden w-px bg-border md:block">
+            <motion.div
+              className="h-full w-px origin-top bg-gradient-to-b from-accent via-accent-light to-ice"
+              style={{ scaleY: line }}
+            />
+          </div>
           {experiences.map((exp, i) => (
-            <TimelineItem key={i} exp={exp} index={i} isInView={isInView} />
+            <ExperienceItem key={exp.company} exp={exp} index={i} />
           ))}
         </div>
       </div>

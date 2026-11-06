@@ -1,117 +1,90 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { Mail, Github } from "lucide-react";
-import { fadeUp, staggerContainer, staggerContainerSlow } from "@/lib/animations";
-
-const contacts = [
-  {
-    icon: Mail,
-    label: "Email",
-    value: "zek.akburak@gmail.com",
-    href: "mailto:zek.akburak@gmail.com",
-  },
-  {
-    icon: Github,
-    label: "GitHub",
-    value: "github.com/Zeky69",
-    href: "https://github.com/Zeky69",
-    external: true,
-  },
-];
-
-function ContactItem({
-  item,
-}: {
-  item: (typeof contacts)[0];
-}) {
-  const { icon: Icon, label, value, href, external } = item;
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <motion.a
-      variants={fadeUp}
-      href={href}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="flex items-center gap-4 group cursor-pointer"
-      aria-label={`${label}: ${value}`}
-    >
-      <motion.div
-        animate={{
-          backgroundColor: hovered ? "#D35F3E" : "#26262A",
-          scale: hovered ? 1.1 : 1,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-      >
-        <Icon size={16} className="text-white" aria-hidden="true" />
-      </motion.div>
-      <div>
-        <p className="text-muted text-xs">{label}</p>
-        <motion.p
-          animate={{ color: hovered ? "#E5825F" : "#EDE4D3" }}
-          transition={{ duration: 0.2 }}
-          className="text-sm font-medium"
-        >
-          {value}
-        </motion.p>
-      </div>
-    </motion.a>
-  );
-}
+import { ArrowUpRight, Github, Mail } from "lucide-react";
+import RevealText from "@/components/fx/RevealText";
+import Magnetic from "@/components/fx/Magnetic";
+import FadeIn from "@/components/fx/FadeIn";
 
 export default function Contact() {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
-
   return (
     <section
       id="contact"
-      ref={ref}
-      className="relative py-28 px-4 sm:px-6 lg:px-8 bg-surface/10 border-t border-border overflow-hidden"
+      className="relative overflow-hidden px-5 pb-24 pt-32 sm:px-8 md:pt-44 lg:px-12"
     >
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-accent/5 blur-[120px] pointer-events-none" />
+      {/* Halo vivant */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div className="blob-drift absolute -bottom-1/3 left-1/4 h-[70vh] w-[70vh] rounded-full bg-accent/25 blur-[140px]" />
+        <div
+          className="blob-drift absolute -bottom-1/4 right-0 h-[45vh] w-[45vh] rounded-full bg-ice/10 blur-[120px]"
+          style={{ animationDelay: "-6s" }}
+        />
+      </div>
 
-      <div className="relative max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-        {/* Left – heading */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-        >
-          <p className="text-accent text-xs font-medium tracking-widest uppercase mb-4">
+      <div className="relative mx-auto max-w-[1600px]">
+        <FadeIn y={12}>
+          <p className="mb-10 flex items-center gap-3 font-mono text-xs text-muted">
+            <span className="text-accent-light">06</span>
+            <span className="h-px w-10 bg-border-hover" />
             Contact
           </p>
-          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-text leading-tight mb-6">
-            Travaillons
-            <br />
-            <span className="text-accent">ensemble.</span>
-          </h2>
-          <p
-            className="text-muted leading-relaxed max-w-md"
-            style={{ lineHeight: "1.8" }}
-          >
-            Ouvert aux stages, projets et opportunités en développement
-            applicatif ou IA. N&apos;hésitez pas à me contacter.
-          </p>
-        </motion.div>
+        </FadeIn>
 
-        {/* Right – contacts */}
-        <motion.div
-          variants={staggerContainerSlow}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="space-y-6"
-        >
-          {contacts.map((item) => (
-            <ContactItem key={item.label} item={item} />
-          ))}
-        </motion.div>
+        <h2 className="text-[clamp(3.5rem,13.5vw,14rem)] font-semibold leading-[0.84] tracking-[-0.06em] text-text">
+          <RevealText text="Travaillons" stagger={0.03} />
+          <br />
+          <span className="flex flex-wrap items-end gap-x-[0.2em]">
+            <RevealText text="ensemble." delay={0.2} stagger={0.03} className="text-outline" />
+          </span>
+        </h2>
+
+        <div className="mt-16 grid items-end gap-12 md:mt-24 md:grid-cols-12">
+          <FadeIn className="md:col-span-5">
+            <p className="max-w-md text-lg leading-relaxed text-muted-light">
+              Ouvert aux stages, projets et opportunités en développement
+              applicatif ou en IA. Un message suffit — je réponds vite.
+            </p>
+            <div className="mt-10 space-y-3">
+              <a
+                href="mailto:zek.akburak@gmail.com"
+                className="group flex items-center justify-between border-b border-border py-4 transition-colors duration-300 hover:border-accent"
+              >
+                <span className="flex items-center gap-4 text-text">
+                  <Mail size={18} className="text-accent-light" />
+                  zek.akburak@gmail.com
+                </span>
+                <ArrowUpRight size={18} className="text-muted transition-transform duration-500 ease-expo group-hover:rotate-45 group-hover:text-text" />
+              </a>
+              <a
+                href="https://github.com/Zeky69"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-between border-b border-border py-4 transition-colors duration-300 hover:border-accent"
+              >
+                <span className="flex items-center gap-4 text-text">
+                  <Github size={18} className="text-accent-light" />
+                  github.com/Zeky69
+                </span>
+                <ArrowUpRight size={18} className="text-muted transition-transform duration-500 ease-expo group-hover:rotate-45 group-hover:text-text" />
+              </a>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.15} className="flex md:col-span-7 md:justify-end">
+            <Magnetic strength={0.45}>
+              <a
+                href="mailto:zek.akburak@gmail.com"
+                data-cursor="Écrire"
+                className="group relative grid h-48 w-48 place-items-center overflow-hidden rounded-full bg-accent text-white sm:h-60 sm:w-60"
+              >
+                <span className="absolute inset-0 scale-0 rounded-full bg-text transition-transform duration-700 ease-expo group-hover:scale-100" />
+                <span className="relative flex flex-col items-center gap-2 text-center text-lg font-medium transition-colors duration-500 group-hover:text-bg">
+                  <ArrowUpRight size={28} className="transition-transform duration-700 ease-expo group-hover:rotate-45" />
+                  Écrire un mail
+                </span>
+              </a>
+            </Magnetic>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );

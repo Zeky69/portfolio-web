@@ -9,31 +9,31 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        heading: ["var(--font-archivo)", "sans-serif"],
-        body: ["var(--font-space-grotesk)", "sans-serif"],
+        sans: ["var(--font-geist)", "system-ui", "sans-serif"],
+        heading: ["var(--font-geist)", "system-ui", "sans-serif"],
+        body: ["var(--font-geist)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
       colors: {
-        // Neutral dark — charbon neutre, pas de teinte chaude
-        bg: "#0B0B0C",
-        surface: "#141416",
-        "surface-hover": "#1C1C20",
-        border: "#26262A",
-        "border-hover": "#363640",
-        // Terracotta signature (accent uniquement)
-        accent: "#D35F3E",
-        "accent-light": "#E5825F",
-        "accent-dark": "#B04828",
-        // Texte papier légèrement chaud (pairing propre avec terracotta)
-        text: "#ECE6DA",
-        muted: "#787883",
-        "muted-light": "#A0A0AB",
+        // Encre — vrai noir, surfaces à peine relevées
+        bg: "#000000",
+        surface: "#0B0B0F",
+        "surface-hover": "#121218",
+        border: "#1C1C24",
+        "border-hover": "#2E2E3A",
+        // Signal — outremer électrique + glace
+        accent: "#5B5BFF",
+        "accent-light": "#9A9AFF",
+        "accent-dark": "#3A3AD9",
+        ice: "#9EF0FF",
+        // Papier froid
+        text: "#EEF0F5",
+        muted: "#80828F",
+        "muted-light": "#AEB0BC",
       },
-      backgroundImage: {
-        "grid-pattern":
-          "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
-      },
-      backgroundSize: {
-        "grid-size": "72px 72px",
+      transitionTimingFunction: {
+        expo: "cubic-bezier(0.16, 1, 0.3, 1)",
+        curtain: "cubic-bezier(0.76, 0, 0.24, 1)",
       },
     },
   },

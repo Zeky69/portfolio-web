@@ -1,172 +1,123 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import { Code2, Brain, Globe, Database, Terminal, Smartphone } from "lucide-react";
-import { fadeUp, staggerContainer, staggerContainerSlow } from "@/lib/animations";
+import { ArrowUpRight } from "lucide-react";
+import SectionHeader from "@/components/SectionHeader";
+import { easeExpo } from "@/lib/animations";
 
 const skillGroups = [
   {
-    icon: Code2,
-    title: "Langages",
-    tags: ["C", "Python", "JavaScript", "TypeScript", "Java"],
-  },
-  {
-    icon: Brain,
     title: "IA & Data",
+    note: "Modèles, agents, LLM locaux",
     tags: ["PyTorch", "TensorFlow", "LangChain", "Scikit-Learn", "Ollama"],
   },
   {
-    icon: Globe,
-    title: "Web & API",
-    tags: ["Vue.js", "React", "FastAPI", "Express", "Fastify", "Flask"],
+    title: "Langages",
+    note: "Du bas niveau au typé",
+    tags: ["Python", "TypeScript", "JavaScript", "C", "Java"],
   },
   {
-    icon: Database,
-    title: "Bases de données",
+    title: "Web & API",
+    note: "Front réactif, back rapide",
+    tags: ["React", "Vue.js", "FastAPI", "Express", "Fastify", "Flask"],
+  },
+  {
+    title: "Données",
+    note: "Relationnel, document, cache",
     tags: ["PostgreSQL", "MongoDB", "Redis", "MySQL"],
   },
   {
-    icon: Terminal,
     title: "DevOps & Outils",
-    tags: ["Docker", "Git", "Home Assistant", "Socket.IO"],
+    note: "Livrer et faire tourner",
+    tags: ["Docker", "Git", "Socket.IO", "Home Assistant"],
   },
   {
-    icon: Smartphone,
     title: "Mobile",
-    tags: ["React Native", "iOS / Android"],
+    note: "Une base, deux plateformes",
+    tags: ["React Native", "iOS", "Android"],
   },
 ];
 
-// 3D tilt + spotlight card
-function SkillCard({
-  icon: Icon,
-  title,
-  tags,
-  delay,
+function SkillRow({
+  group,
+  index,
 }: {
-  icon: React.ElementType;
-  title: string;
-  tags: string[];
-  delay: number;
+  group: (typeof skillGroups)[number];
+  index: number;
 }) {
-  const [rotate, setRotate] = useState({ x: 0, y: 0 });
-  const [spotlight, setSpotlight] = useState({ x: 0, y: 0 });
-  const [hovered, setHovered] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setRotate({ x: y * -10, y: x * 10 });
-    setSpotlight({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  const onMouseLeave = () => {
-    setRotate({ x: 0, y: 0 });
-    setHovered(false);
-  };
+  const ref = useRef<HTMLLIElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
 
   return (
-    <motion.div
-      variants={fadeUp}
-      custom={delay}
-      style={{ transformStyle: "preserve-3d", perspective: "800px" }}
-    >
-      <motion.div
-        ref={cardRef}
-        onMouseMove={onMouseMove}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={onMouseLeave}
-        animate={{
-          rotateX: rotate.x,
-          rotateY: rotate.y,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="relative bg-surface border border-border rounded-2xl p-6 h-full overflow-hidden cursor-default group"
-      >
-        {/* Spotlight gradient */}
-        {hovered && (
-          <div
-            className="pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-300"
-            style={{
-              background: `radial-gradient(250px circle at ${spotlight.x}px ${spotlight.y}px, rgba(211,95,62,0.14), transparent 70%)`,
-            }}
-          />
-        )}
+    <li ref={ref} className="group relative border-b border-border">
+      {/* Remplissage au survol */}
+      <span className="absolute inset-0 origin-bottom scale-y-0 bg-accent transition-transform duration-700 ease-expo group-hover:scale-y-100" />
+      <motion.span
+        className="absolute inset-x-0 top-0 h-px origin-left bg-border-hover"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: inView ? 1 : 0 }}
+        transition={{ duration: 1.2, ease: easeExpo, delay: index * 0.06 }}
+      />
 
-        {/* Hover glow border */}
-        <motion.div
-          className="absolute inset-0 rounded-2xl border border-accent/0 pointer-events-none"
-          animate={{ borderColor: hovered ? "rgba(211,95,62,0.4)" : "rgba(211,95,62,0)" }}
-          transition={{ duration: 0.2 }}
-        />
-
-        {/* Icon */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors duration-200">
-            <Icon size={16} className="text-accent" aria-hidden="true" />
-          </div>
-          <h3 className="font-heading font-semibold text-sm text-text">{title}</h3>
+      <div className="relative grid items-center gap-6 px-2 py-8 md:grid-cols-12 md:px-4 md:py-10">
+        <div className="overflow-hidden md:col-span-5">
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: inView ? "0%" : "100%" }}
+            transition={{ duration: 1, ease: easeExpo, delay: 0.1 + index * 0.06 }}
+            className="flex items-baseline gap-4"
+          >
+            <h3 className="text-[clamp(2rem,4.5vw,4rem)] font-semibold leading-none tracking-[-0.045em] text-text transition-transform duration-700 ease-expo group-hover:translate-x-3">
+              {group.title}
+            </h3>
+          </motion.div>
+          <p className="mt-3 font-mono text-xs text-muted transition-colors duration-500 group-hover:text-white/80">
+            {group.note}
+          </p>
         </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <motion.span
+        <ul className="flex flex-wrap gap-2 md:col-span-6">
+          {group.tags.map((tag, ti) => (
+            <motion.li
               key={tag}
-              whileHover={{ scale: 1.05, y: -1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="text-xs px-3 py-1.5 rounded-full bg-bg border border-border text-muted-light cursor-default"
+              initial={{ opacity: 0, y: 16, scale: 0.9 }}
+              animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ duration: 0.7, ease: easeExpo, delay: 0.25 + index * 0.06 + ti * 0.05 }}
+              className="rounded-full border border-border-hover px-4 py-2 text-sm text-muted-light transition-colors duration-500 group-hover:border-white/40 group-hover:text-white"
+              style={{ transitionDelay: `${ti * 30}ms` }}
             >
               {tag}
-            </motion.span>
+            </motion.li>
           ))}
+        </ul>
+
+        <div className="hidden justify-end md:col-span-1 md:flex">
+          <ArrowUpRight
+            size={28}
+            className="text-muted transition-all duration-700 ease-expo group-hover:rotate-45 group-hover:text-white"
+          />
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </li>
   );
 }
 
 export default function Skills() {
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
-
   return (
-    <section
-      id="skills"
-      ref={ref}
-      className="py-28 px-4 sm:px-6 lg:px-8 bg-surface/30 border-t border-border"
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="mb-14"
-        >
-          <p className="text-accent text-xs font-medium tracking-widest uppercase mb-4">
-            Compétences
-          </p>
-          <h2 className="font-heading font-bold text-4xl sm:text-5xl text-text">
-            Stack technique
-          </h2>
-        </motion.div>
-
-        {/* Grid */}
-        <motion.div
-          variants={staggerContainerSlow}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
-          {skillGroups.map((group, i) => (
-            <SkillCard key={group.title} {...group} delay={i} />
+    <section id="skills" className="relative px-5 py-32 sm:px-8 md:py-44 lg:px-12">
+      <div className="mx-auto max-w-[1600px]">
+        <SectionHeader
+          index="02"
+          label="Compétences"
+          title="Stack technique"
+          intro="Les outils avec lesquels je construis — de l'entraînement du modèle jusqu'à la mise en production."
+        />
+        <ul className="border-b border-border">
+          {skillGroups.map((g, i) => (
+            <SkillRow key={g.title} group={g} index={i} />
           ))}
-        </motion.div>
+        </ul>
       </div>
     </section>
   );

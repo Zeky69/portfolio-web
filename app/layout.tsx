@@ -1,29 +1,43 @@
-import type { Metadata } from "next";
-import { Archivo, Space_Grotesk } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import SmoothScroll from "@/components/fx/SmoothScroll";
+import Cursor from "@/components/fx/Cursor";
+import { TransitionProvider } from "@/components/fx/PageTransition";
 import "./globals.css";
 
-const archivo = Archivo({
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-archivo",
+  variable: "--font-geist",
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-space-grotesk",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Zekeriya AKBURAK – Développeur Fullstack & IA",
+  title: "Zekeriya Akburak — Développeur Fullstack & IA",
   description:
-    "Portfolio de Zekeriya AKBURAK, Développeur Fullstack & IA. Diplômé d'un BUT Informatique, élève ingénieur à l'UTT (Troyes), branche Informatique et Systèmes d'Information.",
+    "Portfolio de Zekeriya Akburak, développeur Fullstack & IA. Diplômé d'un BUT Informatique, élève ingénieur à l'UTT (Troyes), branche Informatique et Systèmes d'Information.",
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
   },
+  openGraph: {
+    title: "Zekeriya Akburak — Développeur Fullstack & IA",
+    description:
+      "IA locale, temps réel, systèmes : les projets et le parcours de Zekeriya Akburak.",
+    url: "https://codeky.fr",
+    siteName: "Zekeriya Akburak",
+    locale: "fr_FR",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -32,11 +46,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="scroll-smooth">
+    <html lang="fr">
       <body
-        className={`${archivo.variable} ${spaceGrotesk.variable} font-body bg-bg text-text antialiased overflow-x-hidden`}
+        className={`${geist.variable} ${geistMono.variable} bg-bg font-sans text-text antialiased`}
       >
-        {children}
+        <noscript>
+          <style>{`.preloader{display:none!important}`}</style>
+        </noscript>
+        <SmoothScroll />
+        <Cursor />
+        <TransitionProvider>{children}</TransitionProvider>
       </body>
     </html>
   );
