@@ -1,34 +1,43 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import SmoothScroll from "@/components/fx/SmoothScroll";
 import Cursor from "@/components/fx/Cursor";
+import Stage from "@/components/three/Stage";
 import { TransitionProvider } from "@/components/fx/PageTransition";
 import "./globals.css";
 
-const geist = Geist({
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-geist",
+  variable: "--font-display",
+  display: "swap",
+  axes: ["wdth", "opsz"],
+});
+
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const mono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Zekeriya Akburak — Développeur Fullstack & IA",
   description:
-    "Portfolio de Zekeriya Akburak, développeur Fullstack & IA. Diplômé d'un BUT Informatique, élève ingénieur à l'UTT (Troyes), branche Informatique et Systèmes d'Information.",
+    "Portfolio de Zekeriya Akburak, élève ingénieur à l'UTT (Informatique et Systèmes d'Information). Pastille, 42 Rank, WallChange, IA locale : des projets complets, en ligne et open source.",
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
   },
   openGraph: {
     title: "Zekeriya Akburak — Développeur Fullstack & IA",
-    description:
-      "IA locale, temps réel, systèmes : les projets et le parcours de Zekeriya Akburak.",
+    description: "Des outils qu'on utilise vraiment : apps macOS, sites en production, IA qui tourne en local.",
     url: "https://codeky.fr",
     siteName: "Zekeriya Akburak",
     locale: "fr_FR",
@@ -37,25 +46,19 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#0B0A10",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
-      <body
-        className={`${geist.variable} ${geistMono.variable} bg-bg font-sans text-text antialiased`}
-      >
-        <noscript>
-          <style>{`.preloader{display:none!important}`}</style>
-        </noscript>
+    <html lang="fr" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
+      <body className="bg-bg font-sans text-text antialiased">
+        <Stage />
         <SmoothScroll />
         <Cursor />
-        <TransitionProvider>{children}</TransitionProvider>
+        <TransitionProvider>
+          <div className="relative z-10">{children}</div>
+        </TransitionProvider>
       </body>
     </html>
   );

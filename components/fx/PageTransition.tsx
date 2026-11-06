@@ -2,20 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { setIntroDone } from "@/lib/intro";
 import { getLenis, scrollToTarget } from "@/lib/lenis";
-import { easeCurtain } from "@/lib/animations";
+import { burst } from "@/lib/stage";
 
-type Phase = "idle" | "cover" | "reveal";
+type Phase = "idle" | "out" | "in";
 type Ctx = { navigate: (href: string, label?: string) => void };
 
 const TransitionContext = createContext<Ctx>({ navigate: () => {} });
@@ -23,6 +16,10 @@ export const usePageTransition = () => useContext(TransitionContext);
 
 const norm = (p: string) => (p.length > 1 ? p.replace(/\/$/, "") : p);
 
+/**
+ * Changement de page : le contenu s'efface, les particules explosent,
+ * la nouvelle page arrive et les particules s'y réassemblent.
+ */
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,27 +34,24 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
       const url = new URL(href, window.location.href);
       setIntroDone();
 
-      // Même page → simple scroll fluide vers l'ancre
       if (norm(url.pathname) === norm(window.location.pathname)) {
         if (url.hash) scrollToTarget(url.hash);
         return;
       }
-
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         router.push(href);
         return;
       }
-
       pending.current = href;
       setLabel(nextLabel ?? "");
       router.prefetch(href);
       getLenis()?.stop();
-      setPhase("cover");
+      burst();
+      setPhase("out");
     },
     [phase, router]
   );
 
-  // Nouvelle route montée sous le rideau → on se place puis on lève le rideau
   useEffect(() => {
     if (prevPath.current === pathname) return;
     prevPath.current = pathname;
@@ -70,57 +64,39 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
         window.scrollTo(0, 0);
         getLenis()?.scrollTo(0, { immediate: true, force: true });
       }
-      if (phase === "cover") setPhase("reveal");
+      setPhase((p) => (p === "out" ? "in" : p));
     });
-  }, [pathname, phase]);
+  }, [pathname]);
 
-  const onPanelDone = () => {
-    if (phase === "cover" && pending.current) {
+  const onDone = () => {
+    if (phase === "out" && pending.current) {
       const href = pending.current;
       pending.current = null;
       router.push(href, { scroll: false });
-    } else if (phase === "reveal") {
+    } else if (phase === "in") {
       setPhase("idle");
     }
   };
 
-  const target = phase === "cover" ? "0%" : phase === "reveal" ? "-100%" : "100%";
-  const instant = phase === "idle";
-
   return (
     <TransitionContext.Provider value={{ navigate }}>
       {children}
-      <div
+      <motion.div
         aria-hidden
-        className={`fixed inset-0 z-[105] ${phase === "idle" ? "pointer-events-none" : ""}`}
+        className="pointer-events-none fixed inset-0 z-[105] flex items-end bg-bg/90 px-5 pb-10 backdrop-blur-sm sm:px-8 lg:px-12"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: phase === "out" ? 1 : 0 }}
+        transition={{ duration: phase === "out" ? 0.55 : 0.8, ease: [0.76, 0, 0.24, 1], delay: phase === "in" ? 0.25 : 0 }}
+        onAnimationComplete={onDone}
       >
-        <motion.div
-          className="absolute inset-0 bg-accent"
-          initial={{ y: "100%" }}
-          animate={{ y: target }}
-          transition={
-            instant ? { duration: 0 } : { duration: 0.65, ease: easeCurtain }
-          }
-        />
-        <motion.div
-          className="absolute inset-0 flex items-end bg-surface px-5 pb-8 sm:px-8 lg:px-12"
-          initial={{ y: "100%" }}
-          animate={{ y: target }}
-          transition={
-            instant
-              ? { duration: 0 }
-              : { duration: 0.65, ease: easeCurtain, delay: 0.09 }
-          }
-          onAnimationComplete={onPanelDone}
+        <motion.span
+          className="font-display text-[clamp(2.5rem,9vw,8rem)] font-bold leading-[0.9] tracking-[-0.045em] text-text"
+          animate={{ y: phase === "out" ? 0 : 40, opacity: phase === "out" ? 1 : 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="flex w-full items-end justify-between gap-6">
-            <span className="text-[clamp(2.5rem,8vw,7rem)] font-semibold leading-[0.9] tracking-[-0.05em] text-text">
-              {label}
-            </span>
-            <span className="font-mono text-xs text-muted">ZA — 2026</span>
-          </div>
-        </motion.div>
-      </div>
+          {label}
+        </motion.span>
+      </motion.div>
     </TransitionContext.Provider>
   );
 }
@@ -130,13 +106,7 @@ type TransitionLinkProps = Omit<React.ComponentProps<typeof Link>, "href"> & {
   label?: string;
 };
 
-export function TransitionLink({
-  href,
-  label,
-  onClick,
-  children,
-  ...rest
-}: TransitionLinkProps) {
+export function TransitionLink({ href, label, onClick, children, ...rest }: TransitionLinkProps) {
   const { navigate } = usePageTransition();
   return (
     <Link
@@ -145,8 +115,7 @@ export function TransitionLink({
       onClick={(e) => {
         onClick?.(e);
         if (e.defaultPrevented) return;
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)
-          return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
         e.preventDefault();
         navigate(href, label);
       }}

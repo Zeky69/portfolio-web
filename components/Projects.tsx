@@ -1,306 +1,187 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
+/* eslint-disable @next/next/no-img-element */
+import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import SectionHeader from "@/components/SectionHeader";
-import ProjectArt from "@/components/fx/ProjectArt";
-import FadeIn from "@/components/fx/FadeIn";
+import SectionTitle from "@/components/SectionTitle";
+import MediaPlate, { MediaView } from "@/components/project/MediaPlate";
+import ProjectVisual from "@/components/project/Visuals";
+import RevealText from "@/components/fx/RevealText";
 import { TransitionLink } from "@/components/fx/PageTransition";
-import { featuredProjects, miniProjects, type Project } from "@/lib/projects";
-import { useMediaQuery } from "@/lib/useMediaQuery";
+import { moreProjects, projects, type Project } from "@/lib/projects";
+import { easeExpo } from "@/lib/animations";
 
-const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+function Chapter({ project, index }: { project: Project; index: number }) {
+  const side = index % 2 === 0 ? "right" : "left";
+  const cover = project.media[0];
 
-function FeaturedCard({
-  project,
-  index,
-  total,
-  rail,
-}: {
-  project: Project;
-  index: number;
-  total: number;
-  rail: boolean;
-}) {
   return (
-    <TransitionLink
-      href={`/projects/${project.slug}`}
-      label={project.title}
-      data-cursor="Ouvrir"
-      className={`group relative block shrink-0 overflow-hidden rounded-[32px] border border-border bg-surface transition-colors duration-500 hover:border-accent/60 ${
-        rail ? "h-[74vh] w-[min(82vw,1100px)]" : "w-full"
-      }`}
+    <article
+      data-stage={project.shape}
+      data-side={side}
+      data-c1={project.colors[0]}
+      data-c2={project.colors[1]}
+      className="relative flex min-h-[100svh] items-center py-20 md:py-28"
     >
-      <div className={`grid h-full ${rail ? "grid-cols-2" : "grid-rows-[auto_1fr]"}`}>
-        <div
-          className={`relative overflow-hidden border-border ${
-            rail ? "border-r" : "aspect-[4/3] border-b"
-          }`}
-        >
-          <ProjectArt
-            variant={index}
-            className="absolute inset-0 h-full w-full transition-transform duration-[1.4s] ease-expo group-hover:scale-[1.12]"
-          />
-          <span className="absolute left-5 top-5 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 font-mono text-[11px] text-text backdrop-blur-md">
-            {project.badge}
-          </span>
-        </div>
-
-        <div className="flex flex-col p-7 md:p-10">
-          <div className="flex items-center justify-between font-mono text-xs text-muted">
-            <span className="tabular">
-              {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-            </span>
-            <span>{project.category}</span>
-          </div>
-
-          <h3
-            className={`mt-10 font-semibold leading-[0.95] tracking-[-0.045em] text-text ${
-              rail ? "mt-auto text-[clamp(2.25rem,3.8vw,4rem)]" : "text-4xl"
-            }`}
-          >
-            {project.title}
-          </h3>
-          <p className="mt-5 max-w-md leading-relaxed text-muted-light">
-            {project.description}
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {project.tags.slice(0, 5).map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-border-hover px-3 py-1 font-mono text-[11px] text-muted-light"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-
-          <span className="mt-8 inline-flex items-center gap-3 text-sm font-medium text-text">
-            <span className="relative">
-              Lire l&apos;étude de cas
-              <span className="absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-accent-light transition-transform duration-500 ease-expo group-hover:origin-left group-hover:scale-x-100" />
-            </span>
-            <span className="grid h-10 w-10 place-items-center rounded-full border border-border-hover transition-all duration-500 ease-expo group-hover:rotate-45 group-hover:border-accent group-hover:bg-accent">
-              <ArrowUpRight size={16} />
-            </span>
-          </span>
-        </div>
-      </div>
-    </TransitionLink>
-  );
-}
-
-/** Desktop : la section se fige et les projets défilent horizontalement au scroll. */
-function FeaturedRail() {
-  const target = useRef<HTMLDivElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const [distance, setDistance] = useState(0);
-
-  useIsoLayoutEffect(() => {
-    const measure = () => {
-      if (!track.current) return;
-      setDistance(Math.max(0, track.current.scrollWidth - window.innerWidth));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    if (track.current) ro.observe(track.current);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
-
-  const { scrollYProgress } = useScroll({
-    target,
-    offset: ["start start", "end end"],
-  });
-  const raw = useTransform(scrollYProgress, [0, 1], [0, -distance]);
-  const x = useSpring(raw, { stiffness: 140, damping: 30, mass: 0.4 });
-  const bar = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
-  return (
-    <div ref={target} className="relative" style={{ height: `calc(100vh + ${distance}px)` }}>
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <motion.div ref={track} style={{ x }} className="flex w-max gap-8 px-12">
-          {featuredProjects.map((p, i) => (
-            <FeaturedCard key={p.slug} project={p} index={i} total={featuredProjects.length} rail />
-          ))}
-          <div className="flex h-[74vh] w-[30vw] shrink-0 flex-col justify-center pl-8">
-            <p className="text-[clamp(2rem,3.5vw,3.5rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-text">
-              Et d&apos;autres
-              <br />
-              <span className="text-outline">projets</span>
-              <br />
-              plus bas.
-            </p>
-          </div>
-        </motion.div>
-        <div className="mx-12 mt-8 flex items-center gap-4 font-mono text-[11px] text-muted">
-          <span>Scroll</span>
-          <div className="h-px flex-1 bg-border">
-            <motion.div className="h-px origin-left bg-accent-light" style={{ scaleX: bar }} />
-          </div>
-          <span>{featuredProjects.length} projets phares</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProjectIndex({ items }: { items: Project[] }) {
-  const fine = useMediaQuery("(pointer: fine)");
-  const [active, setActive] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const x = useSpring(mx, { stiffness: 260, damping: 28, mass: 0.5 });
-  const y = useSpring(my, { stiffness: 260, damping: 28, mass: 0.5 });
-
-  useEffect(() => setMounted(true), []);
-
-  return (
-    <div
-      onPointerMove={(e) => {
-        mx.set(e.clientX);
-        my.set(e.clientY);
-      }}
-      onPointerLeave={() => setActive(null)}
-    >
-      <ul className="border-t border-border">
-        {items.map((p, i) => (
-          <li key={p.slug} onPointerEnter={() => setActive(i)}>
-            <TransitionLink
-              href={`/projects/${p.slug}`}
-              label={p.title}
-              data-cursor="Ouvrir"
-              className="group relative grid grid-cols-12 items-baseline gap-4 border-b border-border py-6 md:py-8"
-            >
-              <span className="absolute inset-x-0 -bottom-px h-px origin-left scale-x-0 bg-gradient-to-r from-accent to-ice transition-transform duration-700 ease-expo group-hover:scale-x-100" />
-              <span className="col-span-2 font-mono text-xs text-muted md:col-span-1">
-                {p.year}
-              </span>
-              <span className="col-span-10 md:col-span-6">
-                <span className="block text-2xl font-medium tracking-[-0.03em] text-text transition-all duration-700 ease-expo group-hover:translate-x-4 group-hover:text-accent-light md:text-4xl">
-                  {p.title}
-                </span>
-                <span className="mt-2 block text-sm leading-relaxed text-muted md:hidden">
-                  {p.description}
-                </span>
-              </span>
-              <span className="hidden font-mono text-xs text-muted md:col-span-4 md:block">
-                {p.tags.slice(0, 3).join(" · ")}
-              </span>
-              <span className="hidden justify-end md:col-span-1 md:flex">
-                <ArrowUpRight
-                  size={22}
-                  className="text-muted transition-all duration-700 ease-expo group-hover:rotate-45 group-hover:text-text"
-                />
-              </span>
-            </TransitionLink>
-          </li>
-        ))}
-      </ul>
-
-      {fine &&
-        mounted &&
-        createPortal(
+      <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 md:grid-cols-12">
+        <div className={`min-w-0 md:col-span-7 ${side === "right" ? "" : "md:col-start-6"} lg:col-span-6 ${side === "left" ? "lg:col-start-7" : ""}`}>
           <motion.div
-            aria-hidden
-            className="pointer-events-none fixed left-0 top-0 z-[80]"
-            style={{ x, y }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 0.9, ease: easeExpo }}
+            className="flex flex-wrap items-center gap-3"
           >
-            <AnimatePresence>
-              {active !== null && (
-                <motion.div
-                  key="preview"
-                  initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.6, rotate: 8 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
-                  className="ml-10 w-[320px] -translate-y-1/2 overflow-hidden rounded-3xl border border-border-hover bg-surface shadow-[0_30px_80px_-20px_rgba(91,91,255,0.45)]"
+            <span className="label tabular" style={{ color: project.colors[0] }}>
+              {String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
+            </span>
+            <span className="h-px w-8 bg-border-hover" />
+            <span className="label text-muted-light">{project.status}</span>
+          </motion.div>
+
+          <div className="mt-6 flex items-end gap-4">
+            {project.icon && (
+              <motion.img
+                src={project.icon}
+                alt=""
+                width={72}
+                height={72}
+                initial={{ opacity: 0, scale: 0.6, rotate: -12 }}
+                whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, ease: easeExpo }}
+                className="mb-2 h-12 w-12 shrink-0 sm:h-[72px] sm:w-[72px]"
+              />
+            )}
+            <h3
+              className="text-[clamp(2.8rem,6.6vw,6.8rem)] font-extrabold leading-[0.88] tracking-[-0.05em]"
+              style={{ fontVariationSettings: '"wdth" 80' }}
+            >
+              <RevealText text={project.title} stagger={0.02} />
+            </h3>
+          </div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: easeExpo, delay: 0.15 }}
+            className="mt-5 font-serif text-[clamp(1.4rem,2.2vw,2rem)] italic leading-[1.1]"
+            style={{ color: project.colors[1] }}
+          >
+            {project.kicker}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-5%" }}
+            transition={{ duration: 1.2, ease: easeExpo, delay: 0.1 }}
+            className="mt-9"
+          >
+            <TransitionLink href={`/projects/${project.slug}`} label={project.title} data-cursor="Ouvrir" className="block">
+              <MediaPlate colors={project.colors} pad={cover ? "p-3 sm:p-5" : "p-3 sm:p-4"}>
+                {cover ? <MediaView media={cover} /> : project.visual && <ProjectVisual visual={project.visual} />}
+              </MediaPlate>
+            </TransitionLink>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: easeExpo, delay: 0.1 }}
+            className="mt-9"
+          >
+            <p className="max-w-[60ch] text-[1.05rem] leading-relaxed text-muted-light">{project.description}</p>
+
+            <ul className="mt-7 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+              {project.highlights.slice(0, 4).map((h) => (
+                <li key={h} className="flex gap-3 text-sm leading-snug text-text/90">
+                  <span
+                    className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: project.colors[0], boxShadow: `0 0 12px ${project.colors[0]}` }}
+                  />
+                  {h}
+                </li>
+              ))}
+            </ul>
+
+            <ul className="mt-7 flex flex-wrap gap-2">
+              {project.stack.map((s) => (
+                <li key={s} className="glass rounded-full px-3 py-1.5 font-mono text-[11px] text-muted-light">
+                  {s}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <TransitionLink
+                href={`/projects/${project.slug}`}
+                label={project.title}
+                className="textured group inline-flex items-center gap-3 overflow-hidden rounded-full px-5 py-3 text-sm font-semibold text-bg"
+                style={{ background: project.colors[0] }}
+              >
+                Étude de cas
+                <ArrowUpRight size={15} className="transition-transform duration-500 ease-expo group-hover:rotate-45" />
+              </TransitionLink>
+              {project.links.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 rounded-full border border-border-hover px-5 py-3 text-sm transition-colors duration-300 hover:border-text"
                 >
-                  <div className="relative h-40 overflow-hidden">
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      <motion.div
-                        key={active}
-                        initial={{ y: "100%" }}
-                        animate={{ y: "0%" }}
-                        exit={{ y: "-100%" }}
-                        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute inset-0"
-                      >
-                        <ProjectArt variant={active + 1} className="h-full w-full" />
-                      </motion.div>
-                    </AnimatePresence>
-                  </div>
-                  <div className="p-5">
-                    <p className="font-mono text-[11px] text-accent-light">
-                      {items[active].year} · {items[active].tags[0]}
-                    </p>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-light">
-                      {items[active].description}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>,
-          document.body
-        )}
-    </div>
+                  {l.label}
+                  <ArrowUpRight size={14} className="text-muted transition-all duration-500 ease-expo group-hover:rotate-45 group-hover:text-text" />
+                </a>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </article>
   );
 }
 
 export default function Projects() {
-  const desktop = useMediaQuery("(min-width: 1024px)");
-  const reduce = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const rail = desktop && !reduce;
-
   return (
-    <section id="projects" className="relative py-32 md:py-44">
-      <div className="mx-auto max-w-[1600px] px-5 sm:px-8 lg:px-12">
-        <SectionHeader
-          index="04"
-          label="Réalisations"
-          title="Projets"
-          intro="IA locale, temps réel, systèmes bas niveau : une sélection de ce que j'ai conçu, codé et livré."
+    <section id="projets" className="relative px-5 sm:px-8 lg:px-12">
+      <div data-stage="scatter" data-dim="0.5" className="mx-auto max-w-[1600px] pb-10 pt-32 md:pt-44">
+        <SectionTitle
+          n="01"
+          label="Projets"
+          title="Ce que j'ai"
+          accent="construit."
+          intro="Six projets complets, du natif macOS à l'IA locale. Chacun est en ligne, publié ou open source — et chacun a sa forme."
         />
       </div>
 
-      {rail ? (
-        <FeaturedRail />
-      ) : (
-        <div className="mx-auto grid max-w-[1600px] gap-6 px-5 sm:px-8 md:grid-cols-2">
-          {featuredProjects.map((p, i) => (
-            <FadeIn key={p.slug} delay={(i % 2) * 0.1}>
-              <FeaturedCard project={p} index={i} total={featuredProjects.length} rail={false} />
-            </FadeIn>
-          ))}
-        </div>
-      )}
+      {projects.map((p, i) => (
+        <Chapter key={p.slug} project={p} index={i} />
+      ))}
 
-      <div className="mx-auto mt-32 max-w-[1600px] px-5 sm:px-8 lg:px-12">
-        <FadeIn y={12}>
-          <div className="mb-10 flex items-end justify-between gap-6">
-            <h3 className="text-[clamp(2rem,4.5vw,4rem)] font-semibold leading-none tracking-[-0.045em] text-text">
-              Autres projets
-            </h3>
-            <span className="font-mono text-xs text-muted">
-              {String(miniProjects.length).padStart(2, "0")} entrées
-            </span>
-          </div>
-        </FadeIn>
-        <ProjectIndex items={miniProjects} />
+      <div data-stage="scatter" data-dim="0.4" className="mx-auto max-w-[1600px] pb-24 pt-10">
+        <p className="label text-muted">Aussi sur GitHub</p>
+        <ul className="mt-6 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+          {moreProjects.map((m) => (
+            <li key={m.title}>
+              <a
+                href={m.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex h-full items-start justify-between gap-4 bg-bg/80 p-5 backdrop-blur transition-colors duration-300 hover:bg-surface"
+              >
+                <span>
+                  <span className="block text-lg font-semibold tracking-tight">{m.title}</span>
+                  <span className="mt-1 block text-sm text-muted">{m.note}</span>
+                </span>
+                <ArrowUpRight size={16} className="mt-1 shrink-0 text-muted transition-all duration-500 ease-expo group-hover:rotate-45 group-hover:text-accent" />
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

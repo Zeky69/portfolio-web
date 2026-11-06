@@ -2,34 +2,33 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist)", "system-ui", "sans-serif"],
-        heading: ["var(--font-geist)", "system-ui", "sans-serif"],
-        body: ["var(--font-geist)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-display)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       colors: {
-        // Encre — vrai noir, surfaces à peine relevées
-        bg: "#000000",
-        surface: "#0B0B0F",
-        "surface-hover": "#121218",
-        border: "#1C1C24",
-        "border-hover": "#2E2E3A",
-        // Signal — outremer électrique + glace
-        accent: "#5B5BFF",
-        "accent-light": "#9A9AFF",
-        "accent-dark": "#3A3AD9",
-        ice: "#9EF0FF",
-        // Papier froid
-        text: "#EEF0F5",
-        muted: "#80828F",
-        "muted-light": "#AEB0BC",
+        // Encre violacée, jamais un noir plat : le fond WebGL la texture
+        bg: "#0B0A10",
+        surface: "#14121B",
+        "surface-hover": "#1C1925",
+        border: "rgba(243,238,230,0.10)",
+        "border-hover": "rgba(243,238,230,0.22)",
+        // Braise + lilas
+        accent: "#FF5A1F",
+        "accent-light": "#FF8A5C",
+        "accent-dark": "#D9400D",
+        lilac: "#B7A4FF",
+        // Papier crème
+        text: "#F3EEE6",
+        muted: "#8F8A99",
+        "muted-light": "#BDB7C6",
       },
       transitionTimingFunction: {
         expo: "cubic-bezier(0.16, 1, 0.3, 1)",

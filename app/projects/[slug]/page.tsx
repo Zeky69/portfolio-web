@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -7,24 +6,16 @@ import path from "node:path";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { getProjectBySlug, projects } from "@/lib/projects";
-import ScrollProgress from "@/components/ScrollProgress";
 import RevealText from "@/components/fx/RevealText";
 import FadeIn from "@/components/fx/FadeIn";
-import ProjectArt from "@/components/fx/ProjectArt";
+import MediaPlate, { MediaView } from "@/components/project/MediaPlate";
+import ProjectVisual from "@/components/project/Visuals";
+import Explainer from "@/components/project/Explainers";
+
+const EXPLAINED = new Set(["wallchange", "rag-against-the-machine", "therightone", "call-me-maybe"]);
 import { TransitionLink } from "@/components/fx/PageTransition";
 
-const MarkdownImage = (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-  <img
-    {...props}
-    alt={props.alt ?? ""}
-    loading="lazy"
-    className="h-auto w-full rounded-2xl border border-border"
-  />
-);
-
-type ProjectPageProps = {
-  params: Promise<{ slug: string }>;
-};
+type ProjectPageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
@@ -36,14 +27,13 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   if (!project) return {};
   return {
     title: `${project.title} — Zekeriya Akburak`,
-    description: project.description,
+    description: `${project.kicker}. ${project.description}`,
   };
 }
 
 async function getProjectMarkdown(slug: string) {
-  const filePath = path.join(process.cwd(), "content", "projects", `${slug}.md`);
   try {
-    return await readFile(filePath, "utf-8");
+    return await readFile(path.join(process.cwd(), "content", "projects", `${slug}.md`), "utf-8");
   } catch {
     return null;
   }
@@ -56,33 +46,29 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   const index = projects.findIndex((p) => p.slug === project.slug);
   const next = projects[(index + 1) % projects.length];
-  const markdownContent = await getProjectMarkdown(project.slug);
-
-  const meta = [
-    { label: "Année", value: project.year ?? "En cours" },
-    { label: "Catégorie", value: project.category ?? project.tags[0] },
-    { label: "Stack", value: project.tags.slice(0, 3).join(" · ") },
-  ];
+  const markdown = await getProjectMarkdown(project.slug);
+  const [cover, ...gallery] = project.media;
+  const wide = gallery.filter((m) => m.w / m.h > 2.2);
+  const regular = gallery.filter((m) => m.w / m.h <= 2.2);
 
   return (
     <>
-      <ScrollProgress />
-      <header className="fixed inset-x-0 top-0 z-[70] px-3 pt-3 sm:px-5 sm:pt-4">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between rounded-full border border-border bg-bg/70 px-3 py-2 backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-0 z-[80] px-3 pt-3 sm:px-5 sm:pt-4">
+        <div className="glass mx-auto flex max-w-[1600px] items-center justify-between rounded-full px-2 py-2">
           <TransitionLink
-            href="/#projects"
+            href="/#projets"
             label="Projets"
-            className="group inline-flex items-center gap-3 rounded-full py-1 pl-1 pr-4 text-sm text-text"
+            className="group inline-flex items-center gap-3 rounded-full py-1 pl-1 pr-4 text-sm"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-full border border-border-hover transition-all duration-500 ease-expo group-hover:-translate-x-1 group-hover:border-accent group-hover:bg-accent">
+            <span className="grid h-9 w-9 place-items-center rounded-full border border-border-hover transition-all duration-500 ease-expo group-hover:-translate-x-1 group-hover:border-accent group-hover:bg-accent group-hover:text-bg">
               <ArrowLeft size={15} />
             </span>
-            Retour aux projets
+            Tous les projets
           </TransitionLink>
           <TransitionLink
             href="/"
             label="Accueil"
-            className="grid h-9 w-9 place-items-center rounded-full bg-text text-[13px] font-bold tracking-tight text-bg transition-colors duration-300 hover:bg-accent hover:text-white"
+            className="textured grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-accent text-[13px] font-extrabold tracking-tight text-bg"
             aria-label="Accueil"
           >
             ZA
@@ -90,135 +76,199 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       </header>
 
-      <main className="min-h-screen px-5 pb-24 pt-36 sm:px-8 md:pt-44 lg:px-12">
-        <div className="mx-auto max-w-[1600px]">
-          {/* Hero projet */}
-          <FadeIn y={12} delay={0.3}>
-            <p className="mb-8 flex items-center gap-3 font-mono text-xs text-muted">
-              <span className="text-accent-light">
-                {String(index + 1).padStart(2, "0")}
+      <main className="px-5 sm:px-8 lg:px-12">
+        <section
+          data-stage={project.shape}
+          data-side="right"
+          data-c1={project.colors[0]}
+          data-c2={project.colors[1]}
+          className="mx-auto flex min-h-[92svh] max-w-[1600px] flex-col justify-end pb-16 pt-36"
+        >
+          <FadeIn y={12} delay={0.2}>
+            <p className="label flex flex-wrap items-center gap-3 text-muted-light">
+              <span style={{ color: project.colors[0] }}>
+                {String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
               </span>
-              <span className="h-px w-10 bg-border-hover" />
-              {project.badge ?? "Projet"}
+              <span className="h-px w-8 bg-border-hover" />
+              {project.status}
             </p>
           </FadeIn>
-          <h1 className="max-w-[14ch] text-[clamp(3rem,9vw,9rem)] font-semibold leading-[0.88] tracking-[-0.055em] text-text">
-            <RevealText text={project.title} delay={0.35} stagger={0.025} />
+          <h1
+            className="mt-8 max-w-[12ch] text-[clamp(3.4rem,11vw,11rem)] font-extrabold leading-[0.85] tracking-[-0.055em]"
+            style={{ fontVariationSettings: '"wdth" 78' }}
+          >
+            <RevealText text={project.title} delay={0.3} stagger={0.03} play />
           </h1>
-
-          <div className="mt-14 grid gap-10 md:grid-cols-12">
-            <FadeIn delay={0.55} className="md:col-span-6">
-              <p className="text-[clamp(1.15rem,1.8vw,1.5rem)] leading-[1.45] tracking-[-0.01em] text-muted-light">
-                {project.description}
-              </p>
-            </FadeIn>
-            <FadeIn delay={0.65} className="md:col-span-5 md:col-start-8">
-              <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border">
-                {meta.map((m) => (
-                  <div key={m.label} className="bg-bg p-4">
-                    <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">
-                      {m.label}
-                    </dt>
-                    <dd className="mt-3 text-sm text-text">{m.value}</dd>
-                  </div>
-                ))}
+          <FadeIn delay={0.6} className="mt-8 max-w-3xl">
+            <p className="font-serif text-[clamp(1.6rem,3vw,2.6rem)] italic leading-[1.08]" style={{ color: project.colors[1] }}>
+              {project.kicker}
+            </p>
+          </FadeIn>
+          <FadeIn delay={0.75} className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-12">
+            <p className="text-lg leading-relaxed text-muted-light md:col-span-6">{project.description}</p>
+            <div className="md:col-span-5 md:col-start-8">
+              <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border">
+                <div className="bg-bg/75 p-4 backdrop-blur">
+                  <dt className="label text-muted">Année</dt>
+                  <dd className="mt-2 text-sm">{project.year}</dd>
+                </div>
+                <div className="bg-bg/75 p-4 backdrop-blur">
+                  <dt className="label text-muted">Stack</dt>
+                  <dd className="mt-2 text-sm">{project.stack.slice(0, 3).join(" · ")}</dd>
+                </div>
               </dl>
-              {project.href && (
-                <a
-                  href={project.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor="Visiter"
-                  className="group relative mt-4 flex items-center justify-between overflow-hidden rounded-2xl bg-accent px-5 py-4 text-sm font-medium text-white"
-                >
-                  <span className="absolute inset-0 translate-y-full bg-text transition-transform duration-500 ease-expo group-hover:translate-y-0" />
-                  <span className="relative transition-colors duration-500 group-hover:text-bg">
-                    {project.href.replace(/^https?:\/\//, "")}
-                  </span>
-                  <ArrowUpRight
-                    size={16}
-                    className="relative transition-all duration-500 ease-expo group-hover:rotate-45 group-hover:text-bg"
-                  />
-                </a>
-              )}
-            </FadeIn>
-          </div>
-
-          {/* Visuel */}
-          <FadeIn delay={0.75} y={60} className="mt-20">
-            <div className="relative aspect-[16/9] overflow-hidden rounded-[32px] border border-border md:aspect-[21/9]">
-              <ProjectArt variant={index} className="absolute inset-0 h-full w-full" />
+              <div className="mt-3 flex flex-wrap gap-2">
+                {project.links.map((l, i) => (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`group inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium ${
+                      i === 0 ? "textured overflow-hidden text-bg" : "border border-border-hover"
+                    }`}
+                    style={i === 0 ? { background: project.colors[0] } : undefined}
+                  >
+                    {l.label}
+                    <ArrowUpRight size={14} className="transition-transform duration-500 ease-expo group-hover:rotate-45" />
+                  </a>
+                ))}
+                {project.links.length === 0 && (
+                  <p className="label text-muted">Dépôt privé — démo sur demande</p>
+                )}
+              </div>
             </div>
           </FadeIn>
+        </section>
 
-          {/* Contenu */}
-          <div className="mt-24 grid gap-12 md:grid-cols-12">
-            <aside className="md:col-span-3">
+        <div data-stage="scatter" data-dim="0.22" data-c1={project.colors[0]} data-c2={project.colors[1]} className="mx-auto max-w-[1600px]">
+          <FadeIn y={60}>
+            <MediaPlate colors={project.colors} pad="p-3 sm:p-8 md:p-12">
+              {cover ? <MediaView media={cover} /> : project.visual && <ProjectVisual visual={project.visual} />}
+            </MediaPlate>
+          </FadeIn>
+
+          {EXPLAINED.has(project.slug) && <Explainer slug={project.slug} colors={project.colors} />}
+
+          {wide.length > 0 && (
+            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+              {wide.map((m) => (
+                <FadeIn key={m.src} y={40}>
+                  <MediaPlate colors={project.colors} pad="p-3 sm:p-5">
+                    <MediaView media={m} />
+                  </MediaPlate>
+                  <p className="mt-3 text-sm text-muted">{m.alt}</p>
+                </FadeIn>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-24 grid grid-cols-1 gap-12 md:grid-cols-12">
+            <aside className="min-w-0 md:col-span-4">
               <div className="md:sticky md:top-32">
-                <p className="font-mono text-xs text-muted">Technologies</p>
-                <ul className="mt-5 flex flex-wrap gap-2">
-                  {project.tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="rounded-full border border-border-hover px-3 py-1.5 font-mono text-[11px] text-muted-light"
-                    >
-                      {tag}
+                <p className="label text-muted">En bref</p>
+                <ul className="mt-5 space-y-4">
+                  {project.highlights.map((h) => (
+                    <li key={h} className="flex gap-3 leading-snug">
+                      <span
+                        className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ background: project.colors[0], boxShadow: `0 0 12px ${project.colors[0]}` }}
+                      />
+                      {h}
                     </li>
                   ))}
                 </ul>
-                <p className="mt-10 font-mono text-xs text-muted">Points clés</p>
-                <ul className="mt-5 space-y-3">
-                  {project.details.map((d) => (
-                    <li key={d} className="flex gap-3 text-sm leading-relaxed text-muted-light">
-                      <span className="mt-2 h-1 w-3 shrink-0 rounded-full bg-gradient-to-r from-accent to-ice" />
-                      {d}
+                <p className="label mt-10 text-muted">Technologies</p>
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {project.stack.map((s) => (
+                    <li key={s} className="glass rounded-full px-3 py-1.5 font-mono text-[11px] text-muted-light">
+                      {s}
                     </li>
                   ))}
                 </ul>
               </div>
             </aside>
 
-            <FadeIn className="md:col-span-8 md:col-start-5">
-              {markdownContent ? (
-                <article className="project-markdown max-w-3xl">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      a: ({ ...props }) => (
-                        <a {...props} target="_blank" rel="noopener noreferrer" />
-                      ),
-                      img: MarkdownImage,
-                    }}
-                  >
-                    {markdownContent}
-                  </ReactMarkdown>
-                </article>
-              ) : (
-                <p className="text-muted">Étude de cas à venir.</p>
+            <div className="min-w-0 md:col-span-8">
+              {markdown && (
+                <FadeIn>
+                  {EXPLAINED.has(project.slug) ? (
+                    <details className="group glass max-w-3xl rounded-3xl">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 sm:px-10 [&::-webkit-details-marker]:hidden">
+                        <span>
+                          <span className="label block text-muted">Pour aller plus loin</span>
+                          <span className="mt-2 block text-xl font-semibold tracking-tight">Tous les détails techniques</span>
+                        </span>
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border-hover text-lg transition-transform duration-500 ease-expo group-open:rotate-45">
+                          +
+                        </span>
+                      </summary>
+                      <article className="project-markdown border-t border-border p-6 sm:p-10">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{ a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}
+                        >
+                          {markdown}
+                        </ReactMarkdown>
+                      </article>
+                    </details>
+                  ) : (
+                    <article className="project-markdown glass max-w-3xl rounded-3xl p-6 sm:p-10">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{ a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}
+                      >
+                        {markdown}
+                      </ReactMarkdown>
+                    </article>
+                  )}
+                </FadeIn>
               )}
-            </FadeIn>
+              {regular.length > 0 && (
+                <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  {regular.map((m) => (
+                    <FadeIn key={m.src} y={40}>
+                      <MediaPlate colors={project.colors} pad="p-3 sm:p-4">
+                        <MediaView media={m} />
+                      </MediaPlate>
+                      <p className="mt-3 text-sm text-muted">{m.alt}</p>
+                    </FadeIn>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
 
-      {/* Projet suivant */}
       <TransitionLink
         href={`/projects/${next.slug}`}
         label={next.title}
         data-cursor="Suivant"
-        className="group relative block overflow-hidden border-t border-border px-5 py-20 sm:px-8 md:py-28 lg:px-12"
+        data-stage={next.shape}
+        data-side="right"
+        data-c1={next.colors[0]}
+        data-c2={next.colors[1]}
+        data-dim="0.7"
+        className="group relative mt-32 block overflow-hidden border-t border-border px-5 py-24 sm:px-8 md:py-36 lg:px-12"
       >
-        <span className="absolute inset-0 origin-bottom scale-y-0 bg-accent transition-transform duration-700 ease-curtain group-hover:scale-y-100" />
         <div className="relative mx-auto flex max-w-[1600px] items-end justify-between gap-8">
           <div>
-            <p className="font-mono text-xs text-muted transition-colors duration-500 group-hover:text-white/80">
-              Projet suivant
-            </p>
-            <p className="mt-5 text-[clamp(2.5rem,8vw,8rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-text transition-transform duration-700 ease-expo group-hover:translate-x-4">
+            <p className="label text-muted">Projet suivant</p>
+            <p
+              className="mt-5 text-[clamp(2.8rem,9vw,9rem)] font-extrabold leading-[0.88] tracking-[-0.055em] transition-transform duration-700 ease-expo group-hover:translate-x-4"
+              style={{ fontVariationSettings: '"wdth" 78' }}
+            >
               {next.title}
             </p>
+            <p className="mt-4 font-serif text-xl italic" style={{ color: next.colors[1] }}>
+              {next.kicker}
+            </p>
           </div>
-          <span className="hidden h-24 w-24 shrink-0 place-items-center rounded-full border border-border-hover transition-all duration-700 ease-expo group-hover:rotate-45 group-hover:border-white md:grid">
+          <span
+            className="textured hidden h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full text-bg transition-transform duration-700 ease-expo group-hover:rotate-45 md:grid"
+            style={{ background: next.colors[0] }}
+          >
             <ArrowUpRight size={32} />
           </span>
         </div>

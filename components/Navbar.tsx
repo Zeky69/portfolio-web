@@ -1,161 +1,122 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValueEvent,
-  useScroll,
-} from "framer-motion";
-import Scramble from "@/components/fx/Scramble";
-import { getLenis, scrollToTarget } from "@/lib/lenis";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useIntroDone } from "@/lib/intro";
-import { easeCurtain, easeExpo } from "@/lib/animations";
+import { scrollToTarget } from "@/lib/lenis";
+import { easeExpo } from "@/lib/animations";
 
-const navLinks = [
-  { href: "#about", label: "À propos" },
-  { href: "#skills", label: "Stack" },
-  { href: "#experience", label: "Expériences" },
-  { href: "#projects", label: "Projets" },
-  { href: "#education", label: "Formation" },
+const links = [
+  { href: "#projets", label: "Projets", n: "01" },
+  { href: "#profil", label: "Profil", n: "02" },
+  { href: "#parcours", label: "Parcours", n: "03" },
+  { href: "#contact", label: "Contact", n: "04" },
 ];
 
 export default function Navbar() {
-  const play = useIntroDone();
-  const [hidden, setHidden] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const intro = useIntroDone();
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("");
-  const last = useRef(0);
-  const { scrollY } = useScroll();
-
-  useMotionValueEvent(scrollY, "change", (y) => {
-    const diff = y - last.current;
-    last.current = y;
-    setScrolled(y > 40);
-    if (open) return;
-    if (y < 120) setHidden(false);
-    else if (diff > 4) setHidden(true);
-    else if (diff < -4) setHidden(false);
-  });
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    const sections = document.querySelectorAll("section[id]");
-    const io = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(`#${e.target.id}`);
-        }),
-      { rootMargin: "-45% 0px -50% 0px" }
-    );
-    sections.forEach((s) => io.observe(s));
-    return () => io.disconnect();
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      let current: string | null = null;
+      for (const l of links) {
+        const el = document.querySelector(l.href);
+        if (el && el.getBoundingClientRect().top < window.innerHeight * 0.5) current = l.href;
+      }
+      setActive(current);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const lenis = getLenis();
-    if (open) lenis?.stop();
-    else lenis?.start();
     document.documentElement.style.overflow = open ? "hidden" : "";
   }, [open]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  const go = (e: React.MouseEvent, href: string) => {
-    e.preventDefault();
-    if (open) {
-      setOpen(false);
-      setTimeout(() => scrollToTarget(href), 450);
-    } else {
-      scrollToTarget(href);
-    }
+  const go = (href: string) => {
+    setOpen(false);
+    scrollToTarget(href);
   };
 
   return (
     <>
       <motion.header
-        className="fixed inset-x-0 top-0 z-[70] px-3 pt-3 sm:px-5 sm:pt-4"
-        initial={{ y: "-120%" }}
-        animate={{ y: play && !hidden ? "0%" : "-120%" }}
-        transition={{ duration: 0.8, ease: easeExpo, delay: play && !scrolled ? 0.4 : 0 }}
+        initial={{ y: -80, opacity: 0 }}
+        animate={intro ? { y: 0, opacity: 1 } : {}}
+        transition={{ duration: 1.1, ease: easeExpo, delay: 0.5 }}
+        className="fixed inset-x-0 top-0 z-[80] px-3 pt-3 sm:px-5 sm:pt-4"
       >
         <nav
-          className={`mx-auto flex max-w-[1600px] items-center justify-between rounded-full border px-3 py-2 transition-[background-color,border-color,backdrop-filter] duration-500 ${
-            scrolled || open
-              ? "border-border bg-bg/70 backdrop-blur-xl"
-              : "border-transparent bg-transparent"
+          className={`mx-auto flex max-w-[1600px] items-center justify-between rounded-full px-2 py-2 transition-all duration-700 ease-expo ${
+            scrolled || open ? "glass" : "border border-transparent"
           }`}
         >
-          <a
-            href="#hero"
-            onClick={(e) => go(e, "#hero")}
+          <button
+            onClick={() => go("#top")}
             className="group flex items-center gap-3 rounded-full py-1 pl-1 pr-3"
             aria-label="Retour en haut"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-text text-[13px] font-bold tracking-tight text-bg transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+            <span className="textured grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-accent text-[13px] font-extrabold tracking-tight text-bg">
               ZA
             </span>
-            <span className="hidden text-sm font-medium tracking-tight text-text sm:inline">
-              <Scramble text="Zekeriya Akburak" />
+            <span className="hidden text-sm font-medium tracking-tight sm:inline">
+              Zekeriya Akburak
             </span>
-          </a>
+          </button>
 
           <ul className="hidden items-center gap-1 lg:flex">
-            {navLinks.map(({ href, label }) => (
-              <li key={href}>
-                <a
-                  href={href}
-                  onClick={(e) => go(e, href)}
-                  className={`relative flex items-center gap-2 rounded-full px-4 py-2 font-mono text-xs uppercase tracking-[0.08em] transition-colors duration-300 ${
-                    active === href ? "text-text" : "text-muted hover:text-text"
+            {links.map((l) => (
+              <li key={l.href}>
+                <button
+                  onClick={() => go(l.href)}
+                  className={`relative rounded-full px-4 py-2 text-sm transition-colors duration-300 ${
+                    active === l.href ? "text-text" : "text-muted-light hover:text-text"
                   }`}
                 >
-                  {active === href && (
+                  {active === l.href && (
                     <motion.span
-                      layoutId="nav-dot"
-                      className="h-1.5 w-1.5 rounded-full bg-accent"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-full bg-white/[0.07]"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   )}
-                  <Scramble text={label} />
-                </a>
+                  <span className="relative">{l.label}</span>
+                </button>
               </li>
             ))}
           </ul>
 
           <div className="flex items-center gap-2">
             <a
-              href="#contact"
-              onClick={(e) => go(e, "#contact")}
-              className="group relative hidden overflow-hidden rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white sm:inline-flex"
+              href="mailto:zek.akburak@gmail.com"
+              data-cursor="Écrire"
+              className="textured hidden overflow-hidden rounded-full bg-text px-5 py-2.5 text-sm font-semibold text-bg transition-colors duration-300 hover:bg-accent sm:inline-flex"
             >
-              <span className="absolute inset-0 translate-y-full rounded-full bg-text transition-transform duration-500 ease-expo group-hover:translate-y-0" />
-              <span className="relative transition-colors duration-500 group-hover:text-bg">
-                Contact
-              </span>
+              Me contacter
             </a>
             <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              className="relative grid h-11 w-11 place-items-center rounded-full border border-border-hover lg:hidden"
-              aria-expanded={open}
-              aria-controls="mobile-menu"
+              onClick={() => setOpen((o) => !o)}
+              className="grid h-10 w-10 place-items-center rounded-full border border-border-hover lg:hidden"
               aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={open}
             >
-              <motion.span
-                className="absolute h-px w-4 bg-text"
-                animate={open ? { rotate: 45, y: 0 } : { rotate: 0, y: -3 }}
-                transition={{ duration: 0.4, ease: easeExpo }}
-              />
-              <motion.span
-                className="absolute h-px w-4 bg-text"
-                animate={open ? { rotate: -45, y: 0 } : { rotate: 0, y: 3 }}
-                transition={{ duration: 0.4, ease: easeExpo }}
-              />
+              <span className="relative block h-3 w-4">
+                <span
+                  className={`absolute left-0 top-0 h-px w-4 bg-text transition-transform duration-500 ease-expo ${
+                    open ? "translate-y-1.5 rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`absolute bottom-0 left-0 h-px w-4 bg-text transition-transform duration-500 ease-expo ${
+                    open ? "-translate-y-1.5 -rotate-45" : ""
+                  }`}
+                />
+              </span>
             </button>
           </div>
         </nav>
@@ -164,47 +125,34 @@ export default function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            id="mobile-menu"
-            className="fixed inset-0 z-[65] flex flex-col justify-end bg-surface px-5 pb-10 pt-28 sm:px-8"
-            initial={{ clipPath: "inset(0% 0% 100% 0%)" }}
-            animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
-            exit={{ clipPath: "inset(0% 0% 100% 0%)" }}
-            transition={{ duration: 0.7, ease: easeCurtain }}
+            initial={{ clipPath: "circle(0% at 100% 0%)" }}
+            animate={{ clipPath: "circle(150% at 100% 0%)" }}
+            exit={{ clipPath: "circle(0% at 100% 0%)" }}
+            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+            className="textured fixed inset-0 z-[75] flex flex-col justify-end bg-accent px-6 pb-12 pt-28"
           >
-            <ul className="space-y-1">
-              {[...navLinks, { href: "#contact", label: "Contact" }].map(
-                ({ href, label }, i) => (
-                  <li key={href} className="overflow-hidden">
-                    <motion.a
-                      href={href}
-                      onClick={(e) => go(e, href)}
-                      initial={{ y: "110%" }}
-                      animate={{ y: "0%" }}
-                      exit={{ y: "110%" }}
-                      transition={{ duration: 0.7, ease: easeExpo, delay: 0.15 + i * 0.05 }}
-                      className="flex items-baseline gap-4 py-1 text-[clamp(2.5rem,11vw,4.5rem)] font-semibold leading-none tracking-[-0.045em] text-text"
-                    >
-                      <span className="font-mono text-xs font-normal tracking-normal text-accent-light">
-                        0{i + 1}
-                      </span>
-                      {label}
-                    </motion.a>
-                  </li>
-                )
-              )}
+            <ul>
+              {links.map((l, i) => (
+                <motion.li
+                  key={l.href}
+                  initial={{ y: 60, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: easeExpo, delay: 0.2 + i * 0.06 }}
+                  className="border-b border-bg/20"
+                >
+                  <button
+                    onClick={() => go(l.href)}
+                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.05em] text-bg"
+                  >
+                    {l.label}
+                    <span className="font-mono text-xs font-normal tracking-normal">{l.n}</span>
+                  </button>
+                </motion.li>
+              ))}
             </ul>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mt-12 flex justify-between border-t border-border pt-5 font-mono text-xs text-muted"
-            >
-              <a href="mailto:zek.akburak@gmail.com">zek.akburak@gmail.com</a>
-              <a href="https://github.com/Zeky69" target="_blank" rel="noopener noreferrer">
-                GitHub
-              </a>
-            </motion.div>
+            <a href="mailto:zek.akburak@gmail.com" className="mt-8 font-mono text-sm text-bg">
+              zek.akburak@gmail.com
+            </a>
           </motion.div>
         )}
       </AnimatePresence>
