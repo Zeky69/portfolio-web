@@ -51,16 +51,20 @@ export const particleVertex = /* glsl */ `
 uniform float uTime;
 uniform float uProgress;
 uniform float uChaos;
-uniform float uSize;
 uniform float uPixelRatio;
-uniform vec3 uMouse;
-uniform float uMouseRadius;
+uniform float uOpacity;
+uniform vec3 uColorA;    // palette de la section courante
+uniform vec3 uColorB;
 attribute vec3 aFrom;
 attribute vec3 aTo;
 attribute vec4 aRand;
-varying float vAlpha;
-varying float vMix;
-varying float vHot;
+attribute vec3 aColor;   // teinte d'étoile : blanc froid, bleu pâle ou pêche
+attribute float aMag;    // magnitude 0..1 : la plupart sont faibles, quelques-unes brillent
+attribute vec2 aOffset;  // déplacement (NDC) laissé par le passage du curseur
+varying vec3 vColor;
+varying float vBright;
+varying float vDiameter;
+varying float vSpike;
 ${SNOISE}
 
 float easeInOutCubic(float t){
@@ -82,57 +86,71 @@ void main(){
     snoise(q + vec3(13.7, 0.0, uTime * 0.12)),
     snoise(q + vec3(uTime * 0.12, 27.1, 0.0))
   );
-  pos += drift * (flight * (0.9 + aRand.x * 1.8) * uChaos + 0.035 + 0.03 * aRand.y);
+  pos += drift * (flight * (0.9 + aRand.x * 1.8) * uChaos + 0.02 + 0.02 * aRand.y);
 
-  vec4 world = modelMatrix * vec4(pos, 1.0);
-
-  // Le curseur repousse les particules
-  vec3 dir = world.xyz - uMouse;
-  float d = length(dir.xy);
-  float push = smoothstep(uMouseRadius, 0.0, d);
-  world.xyz += normalize(dir + vec3(0.0001)) * push * 0.55;
-
-  vec4 mv = viewMatrix * world;
+  vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
+  // Sillage du curseur : chaque étoile garde son élan puis revient à sa place
+  gl_Position.xy += aOffset * gl_Position.w;
+  float stir = clamp(length(aOffset) * 12.0, 0.0, 1.0);
 
-  float size = uSize * (0.35 + aRand.y * aRand.y * 1.3);
-  gl_PointSize = size * uPixelRatio * (10.0 / -mv.z);
+  // Étoiles fines : 1 à 4 px, la profondeur ne fait varier la taille que légèrement
+  float depth = clamp(10.0 / -mv.z, 0.75, 1.35);
+  float diameter = uPixelRatio * (1.0 + aMag * aMag * 2.6) * depth * (1.0 + stir * 0.25);
+  vDiameter = diameter;
+  vSpike = smoothstep(0.86, 1.0, aMag);
+  // La place autour du cœur sert au petit halo et aux aigrettes des plus brillantes
+  gl_PointSize = max(diameter * mix(2.6, 6.0, vSpike), 4.0);
 
-  vHot = step(0.965, aRand.z);
-  vMix = clamp(aRand.y * 0.75 + (pos.y + 2.4) / 9.0, 0.0, 1.0);
-  float twinkle = 0.65 + 0.35 * sin(uTime * (1.2 + aRand.x * 2.5) + aRand.z * 6.2831);
-  vAlpha = twinkle * (0.55 + 0.45 * aRand.x) + push * 0.6 + flight * 0.25;
+  float twinkle = 0.92 + 0.08 * sin(uTime * (0.8 + aRand.x * 1.6) + aRand.z * 6.2831);
+  vBright = (0.17 + aMag * 1.05 + stir * 0.35) * twinkle * uOpacity;
+  // Thème de section : ~60 % des étoiles prennent une teinte pastel de la palette,
+  // les autres gardent leur blanc/bleu/pêche naturel
+  vec3 sectionTint = mix(uColorA, uColorB, step(0.5, fract(aRand.z * 3.7)));
+  sectionTint = mix(sectionTint, vec3(1.0), 0.32);
+  float tinted = mix(0.2, 0.9, step(0.4, fract(aRand.x * 7.13)));
+  vColor = mix(aColor, sectionTint, tinted);
 }
 `;
 
 export const particleFragment = /* glsl */ `
-uniform vec3 uColorA;
-uniform vec3 uColorB;
-uniform float uOpacity;
-varying float vAlpha;
-varying float vMix;
-varying float vHot;
+varying vec3 vColor;
+varying float vBright;
+varying float vDiameter;
+varying float vSpike;
 
 void main(){
-  vec2 c = gl_PointCoord - 0.5;
-  float d = length(c);
-  if (d > 0.5) discard;
-  float core = smoothstep(0.5, 0.0, d);
-  core = pow(core, 1.7);
-  vec3 col = mix(uColorA, uColorB, vMix);
-  col = mix(col, vec3(1.0, 0.97, 0.92), vHot * 0.7);
-  gl_FragColor = vec4(col, core * vAlpha * uOpacity);
+  vec2 px = (gl_PointCoord - 0.5) * (vDiameter * mix(2.6, 6.0, vSpike));
+  float r = length(px);
+  float rad = vDiameter * 0.5;
+
+  // Cœur net (bord lissé sur un seul pixel) + halo très court
+  float core = 1.0 - smoothstep(rad - 0.5, rad + 0.5, r);
+  float halo = pow(max(1.0 - r / (rad * 2.6 + 1.0), 0.0), 3.0) * 0.28;
+
+  // Aigrettes fines en croix sur les étoiles les plus brillantes
+  float len = vDiameter * 3.0;
+  float spikes = (
+    (1.0 - smoothstep(0.0, 0.7, abs(px.y))) * (1.0 - smoothstep(0.0, len, abs(px.x))) +
+    (1.0 - smoothstep(0.0, 0.7, abs(px.x))) * (1.0 - smoothstep(0.0, len, abs(px.y)))
+  ) * 0.45 * vSpike;
+
+  float light = core + halo + spikes;
+  if (light < 0.004) discard;
+  gl_FragColor = vec4(vColor * vBright * light, 1.0);
 }
 `;
 
-/* ---------------- Fond texturé plein écran ---------------- */
+/* ---------------- Fond : nébuleuse (basse résolution) ---------------- */
 
 export const bgVertex = /* glsl */ `
 varying vec2 vUv;
 void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }
 `;
 
-export const bgFragment = /* glsl */ `
+/** Nuages de gaz + bandes de poussière, teintés par la palette de la section.
+ *  Rendu dans une petite texture (formes très douces) pour rester léger. */
+export const nebulaFragment = /* glsl */ `
 uniform vec2 uRes;
 uniform float uTime;
 uniform vec3 uInk;
@@ -140,36 +158,81 @@ uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform float uSide;
 uniform float uGlow;
+uniform float uScroll;
 varying vec2 vUv;
 ${SNOISE}
 
-float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float fbm(vec3 p){
+  float s = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 3; i++) { s += a * snoise(p); p = p * 2.03 + 11.7; a *= 0.5; }
+  return s;
+}
 
 void main(){
   vec2 p = vUv;
   float aspect = uRes.x / uRes.y;
   vec2 q = vec2((p.x - 0.5) * aspect, p.y - 0.5);
+  float t = uTime * 0.012;
 
-  // Deux nappes de couleur qui dérivent du côté des particules
-  vec2 c1 = vec2(uSide * 0.42 * aspect + sin(uTime * 0.11) * 0.18, 0.05 + cos(uTime * 0.13) * 0.12);
-  vec2 c2 = vec2(uSide * 0.1 * aspect - 0.35 + cos(uTime * 0.09) * 0.25, -0.38 + sin(uTime * 0.07) * 0.1);
-  float warp = snoise(vec3(q * 1.4, uTime * 0.04)) * 0.18;
-  float g1 = smoothstep(0.95, 0.0, length(q - c1) + warp);
-  float g2 = smoothstep(0.85, 0.0, length(q - c2) - warp);
+  // Base : nuit bleutée en haut, encre violacée en bas — jamais un noir plat
+  vec3 col = mix(uInk + vec3(0.03, 0.02, 0.055), uInk + vec3(0.012, 0.028, 0.055), p.y);
 
-  vec3 col = uInk;
-  col += uColorA * g1 * g1 * 0.42 * uGlow;
-  col += uColorB * g2 * g2 * 0.26 * uGlow;
+  // Le motif défile plus lentement que la page (parallaxe)
+  vec2 nq = q * 1.1 + vec2(0.0, uScroll * 0.12);
+  vec2 warp = vec2(snoise(vec3(nq * 0.8, t)), snoise(vec3(nq * 0.8 + 5.2, t + 3.0)));
+  float clouds = smoothstep(-0.2, 0.7, fbm(vec3(nq * 1.3 + warp * 0.8, t * 1.4)));
+  float wisps = smoothstep(0.05, 0.6, snoise(vec3(nq * 3.4 + warp * 1.5, t + 7.0)));
+  float dust = smoothstep(0.15, 0.75, snoise(vec3(nq * 2.1 - warp * 1.2, t * 0.8 + 2.0)));
 
-  // Texture « papier » : fibres basse fréquence + grain fin animé
-  float fiber = snoise(vec3(q.x * 9.0, q.y * 2.2, 1.7)) * 0.5 + snoise(vec3(q * 34.0, 3.1)) * 0.5;
-  col *= 0.94 + fiber * 0.06;
+  // La nébuleuse se concentre du côté où se trouvent les particules
+  vec2 c = vec2(uSide * 0.38 * aspect, 0.05);
+  float mask = smoothstep(1.5, 0.0, length((q - c) * vec2(0.7, 1.0)));
+  float mask2 = smoothstep(1.1, 0.0, length(q - vec2(-c.x * 0.6 - 0.2, -0.45)));
+
+  vec3 gasA = mix(uColorA, vec3(0.5, 0.55, 0.7), 0.35);
+  vec3 gasB = mix(uColorB, vec3(0.5, 0.55, 0.7), 0.35);
+  vec3 gas = mix(gasB, gasA, smoothstep(-0.4, 0.5, warp.x));
+  col += gas * clouds * mask * 0.38 * uGlow;
+  col += gasB * clouds * mask2 * 0.24 * uGlow;
+  col += mix(gas, vec3(1.0), 0.4) * wisps * clouds * mask * 0.16 * uGlow;
+  col *= 1.0 - dust * 0.5 * min(1.0, mask + mask2 * 0.5);
+
+  // Vignette douce
+  col *= 1.0 - 0.75 * smoothstep(0.55, 1.3, length(q * vec2(0.75, 1.0)));
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+/** Composition plein écran : nébuleuse agrandie + étoiles lointaines + grain fin. */
+export const bgFragment = /* glsl */ `
+uniform sampler2D uNebula;
+uniform float uTime;
+uniform float uPixelRatio;
+uniform float uScroll;
+uniform vec2 uRes;
+varying vec2 vUv;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+
+void main(){
+  vec3 col = texture2D(uNebula, vUv).rgb;
+
+  // Champ d'étoiles lointaines, figées, qui défilent à peine (profondeur)
+  vec2 g = gl_FragCoord.xy / (3.0 * uPixelRatio) + vec2(0.0, uScroll * uRes.y * 0.04 / 3.0);
+  vec2 cell = floor(g);
+  float h = hash(cell);
+  if (h > 0.978) {
+    vec2 sp = vec2(hash(cell + 3.1), hash(cell + 7.7)) * 0.6 + 0.2;
+    float d = length(fract(g) - sp);
+    float tw = 0.65 + 0.35 * sin(uTime * (0.4 + h * 2.0) + h * 91.0);
+    vec3 tint = mix(vec3(0.72, 0.8, 1.0), vec3(1.0, 0.86, 0.75), step(0.995, h));
+    col += tint * (1.0 - smoothstep(0.0, 0.32, d)) * ((h - 0.978) / 0.022) * 0.6 * tw;
+  }
+
+  // Grain fin animé (casse aussi les dégradés en escalier)
   float grain = hash(floor(gl_FragCoord.xy) + floor(uTime * 18.0) * 7.31);
-  col += (grain - 0.5) * 0.05;
-
-  // Vignette
-  col *= 1.0 - smoothstep(0.55, 1.15, length(q * vec2(0.8, 1.0)));
-
+  col += (grain - 0.5) * 0.035;
   gl_FragColor = vec4(col, 1.0);
 }
 `;

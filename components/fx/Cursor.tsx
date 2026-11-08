@@ -110,12 +110,12 @@ export default function Cursor() {
             width: size,
             height: size,
             backgroundColor: state.label
-              ? "rgba(255,90,31,1)"
+              ? "rgba(116,227,201,1)"
               : state.hover
-                ? "rgba(255,90,31,0.14)"
-                : "rgba(255,90,31,0)",
+                ? "rgba(116,227,201,0.14)"
+                : "rgba(116,227,201,0)",
             borderColor: state.label
-              ? "rgba(255,90,31,1)"
+              ? "rgba(116,227,201,1)"
               : state.hover
                 ? "rgba(255,140,90,0.75)"
                 : "rgba(243,238,230,0.35)",

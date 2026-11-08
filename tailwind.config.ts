@@ -20,10 +20,10 @@ const config: Config = {
         "surface-hover": "#1C1925",
         border: "rgba(243,238,230,0.10)",
         "border-hover": "rgba(243,238,230,0.22)",
-        // Braise + lilas
-        accent: "#FF5A1F",
-        "accent-light": "#FF8A5C",
-        "accent-dark": "#D9400D",
+        // Aurore (vert d'eau) + lilas — l'accent vient d'une variable CSS pour le changer en un seul endroit
+        accent: "rgb(var(--accent-rgb) / <alpha-value>)",
+        "accent-light": "#A9F0DF",
+        "accent-dark": "#2DB894",
         lilac: "#B7A4FF",
         // Papier crème
         text: "#F3EEE6",

@@ -66,8 +66,8 @@ export default function Journey() {
       id="parcours"
       data-stage="knot"
       data-side="left"
-      data-c1="#FF5A1F"
-      data-c2="#FFB020"
+      data-c1="#FFC48A"
+      data-c2="#FF8FB1"
       className="relative px-5 py-28 sm:px-8 md:py-40 lg:px-12"
     >
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 md:grid-cols-12">
@@ -78,7 +78,7 @@ export default function Journey() {
             <span className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px bg-border" />
             <motion.span
               style={{ scaleY: line }}
-              className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-accent via-[#FFB020] to-lilac"
+              className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-accent via-[#8FB8FF] to-lilac"
             />
             {steps.map((s, i) => (
               <motion.li
@@ -91,7 +91,7 @@ export default function Journey() {
               >
                 <span
                   className={`absolute -left-8 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-bg sm:-left-12 ${
-                    s.current ? "bg-accent shadow-[0_0_20px_rgba(255,90,31,0.9)]" : "bg-text"
+                    s.current ? "bg-accent shadow-[0_0_20px_rgba(116,227,201,0.9)]" : "bg-text"
                   }`}
                 />
                 <p className="label flex flex-wrap items-center gap-3 text-muted">

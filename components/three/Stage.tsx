@@ -5,11 +5,19 @@ import * as THREE from "three";
 import { getShape, type ShapeContext, type ShapeName, SHAPES } from "@/lib/shapes";
 import { registerBurst } from "@/lib/stage";
 import { setIntroDone } from "@/lib/intro";
-import { bgFragment, bgVertex, particleFragment, particleVertex } from "./shaders";
+import { bgFragment, bgVertex, nebulaFragment, particleFragment, particleVertex } from "./shaders";
 
 const INK = "#0B0A10";
-const DEFAULT_A = "#FF5A1F";
+const DEFAULT_A = "#74E3C9";
 const DEFAULT_B = "#B7A4FF";
+// Teintes d'étoiles (RVB linéaire 0..1) : surtout du blanc froid, un peu de bleu et de pêche
+const STAR_TINTS: [number, number, number][] = [
+  [0.86, 0.91, 1.0], // blanc froid
+  [0.66, 0.78, 1.0], // bleu pâle
+  [1.0, 0.8, 0.64], // pêche
+  [1.0, 1.0, 1.0], // blanc pur
+];
+const pickTint = (r: number) => (r < 0.62 ? 0 : r < 0.8 ? 1 : r < 0.94 ? 2 : 3);
 const SPINNING = new Set<ShapeName>(["halo", "galaxy", "knot", "constellation", "helix", "scatter"]);
 
 type Target = {
@@ -56,7 +64,7 @@ export default function Stage() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let narrow = window.innerWidth < 768;
-    const N = narrow ? 9000 : 20000;
+    const N = narrow ? 7000 : 14000;
 
     let renderer: THREE.WebGLRenderer;
     try {
@@ -79,10 +87,17 @@ export default function Stage() {
       narrow,
     };
 
-    /* ---------- Fond texturé ---------- */
-    const bgScene = new THREE.Scene();
+    /* ---------- Fond : nébuleuse calculée à mi-résolution, puis composée ---------- */
     const bgCam = new THREE.Camera();
-    const bgUniforms = {
+    const quad = new THREE.PlaneGeometry(2, 2);
+    const NEB_SCALE = 0.5;
+    const nebTarget = new THREE.WebGLRenderTarget(
+      Math.ceil(window.innerWidth * NEB_SCALE),
+      Math.ceil(window.innerHeight * NEB_SCALE),
+      { depthBuffer: false }
+    );
+    const nebScene = new THREE.Scene();
+    const nebUniforms = {
       uRes: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
       uTime: { value: 0 },
       uInk: { value: new THREE.Color(INK) },
@@ -90,6 +105,24 @@ export default function Stage() {
       uColorB: { value: new THREE.Color(DEFAULT_B) },
       uSide: { value: 0.4 },
       uGlow: { value: 1 },
+      uScroll: { value: 0 },
+    };
+    const nebMat = new THREE.ShaderMaterial({
+      vertexShader: bgVertex,
+      fragmentShader: nebulaFragment,
+      uniforms: nebUniforms,
+      depthTest: false,
+      depthWrite: false,
+    });
+    nebScene.add(new THREE.Mesh(quad, nebMat));
+
+    const bgScene = new THREE.Scene();
+    const bgUniforms = {
+      uNebula: { value: nebTarget.texture },
+      uTime: { value: 0 },
+      uPixelRatio: { value: renderer.getPixelRatio() },
+      uScroll: { value: 0 },
+      uRes: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
     };
     const bgMat = new THREE.ShaderMaterial({
       vertexShader: bgVertex,
@@ -98,8 +131,7 @@ export default function Stage() {
       depthTest: false,
       depthWrite: false,
     });
-    const bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat);
-    bgScene.add(bgMesh);
+    bgScene.add(new THREE.Mesh(quad, bgMat));
 
     /* ---------- Scène principale ---------- */
     const scene = new THREE.Scene();
@@ -127,17 +159,32 @@ export default function Stage() {
     geo.setAttribute("aTo", toAttr);
     geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 4));
 
+    // Étoiles : magnitude (beaucoup de faibles, quelques brillantes) et teinte neutre
+    const mag = new Float32Array(N);
+    const tint = new Float32Array(N * 3);
+    const mass = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      mag[i] = Math.pow(Math.random(), 2.4);
+      const c = STAR_TINTS[pickTint(Math.random())];
+      tint.set(c, i * 3);
+      mass[i] = 0.65 + Math.random() * 1.75;
+    }
+    geo.setAttribute("aMag", new THREE.BufferAttribute(mag, 1));
+    geo.setAttribute("aColor", new THREE.BufferAttribute(tint, 3));
+    const offset = new Float32Array(N * 2);
+    const vel = new Float32Array(N * 2);
+    const offsetAttr = new THREE.BufferAttribute(offset, 2);
+    offsetAttr.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute("aOffset", offsetAttr);
+
     const pUniforms = {
       uTime: { value: 0 },
       uProgress: { value: 1 },
       uChaos: { value: 0 },
-      uSize: { value: narrow ? 5.6 : 5.0 },
       uPixelRatio: { value: renderer.getPixelRatio() },
-      uMouse: { value: new THREE.Vector3(99, 99, 0) },
-      uMouseRadius: { value: 1.1 },
+      uOpacity: { value: 1 },
       uColorA: { value: new THREE.Color(DEFAULT_A) },
       uColorB: { value: new THREE.Color(DEFAULT_B) },
-      uOpacity: { value: 1 },
     };
     const pMat = new THREE.ShaderMaterial({
       vertexShader: particleVertex,
@@ -262,9 +309,11 @@ export default function Stage() {
     const parallax = new THREE.Vector2(0, 0);
     const zero = new THREE.Vector2(0, 0);
     let hasMouse = false;
-    const raycaster = new THREE.Raycaster();
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-    const hit = new THREE.Vector3();
+    // Sillage : position précédente du curseur (NDC) et état de la simulation
+    const prevNdc = new THREE.Vector2(0, 0);
+    let prevValid = false;
+    let simActive = false;
+    const mvp = new THREE.Matrix4();
 
     const onMove = (e: PointerEvent) => {
       mouseNdc.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
@@ -272,6 +321,7 @@ export default function Stage() {
     };
     const onLeave = () => {
       hasMouse = false;
+      prevValid = false;
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("mouseleave", onLeave);
@@ -286,6 +336,8 @@ export default function Stage() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       bgUniforms.uRes.value.set(w, h);
+      nebUniforms.uRes.value.set(w, h);
+      nebTarget.setSize(Math.ceil(w * NEB_SCALE), Math.ceil(h * NEB_SCALE));
       narrow = w < 768;
       ctx.narrow = narrow;
       measure();
@@ -395,8 +447,8 @@ export default function Stage() {
       const k = 1 - Math.exp(-dt * follow);
       pUniforms.uColorA.value.lerp(style.c1, k);
       pUniforms.uColorB.value.lerp(style.c2, k);
-      bgUniforms.uColorA.value.lerp(style.c1, k);
-      bgUniforms.uColorB.value.lerp(style.c2, k);
+      nebUniforms.uColorA.value.lerp(style.c1, k);
+      nebUniforms.uColorB.value.lerp(style.c2, k);
 
       const visH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
       const visW = visH * camera.aspect;
@@ -405,7 +457,7 @@ export default function Stage() {
       rig.position.x += (side * visW * 0.24 - rig.position.x) * k;
       const fit = portrait ? Math.min(1, visW / 5.6) : Math.min(1.1, visH / 6.4);
       rig.scale.setScalar(rig.scale.x + (fit - rig.scale.x) * (1 - Math.exp(-dt * 2)));
-      bgUniforms.uSide.value += (style.side - bgUniforms.uSide.value) * k;
+      nebUniforms.uSide.value += (style.side - nebUniforms.uSide.value) * k;
 
       const dim = style.dim * (portrait && introPhase === "done" ? 0.4 : 1);
       pUniforms.uOpacity.value += (dim - pUniforms.uOpacity.value) * k;
@@ -426,16 +478,94 @@ export default function Stage() {
       spin.rotation.y = spinAngle + parallax.x * 0.3;
       spin.rotation.x = -parallax.y * 0.18 + THREE.MathUtils.clamp(scrollVel * 0.004, -0.35, 0.35);
 
-      if (hasMouse) {
-        raycaster.setFromCamera(mouseNdc, camera);
-        if (raycaster.ray.intersectPlane(plane, hit)) pUniforms.uMouse.value.lerp(hit, 0.35);
-      } else {
-        pUniforms.uMouse.value.set(99, 99, 0);
+      /* Sillage du curseur (même principe que les étoiles d'Astra) : les étoiles
+         traversées reçoivent l'élan du geste, glissent avec une inertie qui dépend
+         de leur « masse », puis reviennent doucement à leur place. */
+      if (hasMouse && !reduced) {
+        if (prevValid) {
+          const aspect = camera.aspect;
+          const sx = (mouseNdc.x - prevNdc.x) * aspect;
+          const sy2 = mouseNdc.y - prevNdc.y;
+          const segLen2 = sx * sx + sy2 * sy2;
+          if (segLen2 > 1e-8) {
+            scene.updateMatrixWorld();
+            mvp.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse).multiply(points.matrixWorld);
+            const m = mvp.elements;
+            const p = pUniforms.uProgress.value;
+            const ax = prevNdc.x * aspect;
+            const ay = prevNdc.y;
+            const cap = Math.min(1, 0.18 / Math.sqrt(segLen2));
+            const ix = sx * cap;
+            const iy = sy2 * cap;
+            const R = 0.11;
+            for (let i = 0; i < N; i++) {
+              const lp = Math.min(1, Math.max(0, (p - rand[i * 4 + 3] * 0.4) / 0.6));
+              const e = easeInOutCubic(lp);
+              const k3 = i * 3;
+              const x = from[k3] + (to[k3] - from[k3]) * e;
+              const y = from[k3 + 1] + (to[k3 + 1] - from[k3 + 1]) * e;
+              const z = from[k3 + 2] + (to[k3 + 2] - from[k3 + 2]) * e;
+              const w = m[3] * x + m[7] * y + m[11] * z + m[15];
+              if (w <= 0) continue;
+              const k2 = i * 2;
+              const cx = ((m[0] * x + m[4] * y + m[8] * z + m[12]) / w + offset[k2]) * aspect;
+              const cy = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w + offset[k2 + 1];
+              const tt = Math.min(1, Math.max(0, ((cx - ax) * sx + (cy - ay) * sy2) / segLen2));
+              const dx = cx - ax - sx * tt;
+              const dy = cy - ay - sy2 * tt;
+              const d = Math.sqrt(dx * dx + dy * dy);
+              if (d >= R) continue;
+              const f = 1 - smooth(d / R);
+              const wgt = (f * f * 5.4) / mass[i];
+              vel[k2] += (ix * wgt) / aspect;
+              vel[k2 + 1] += iy * wgt;
+              const sp = Math.hypot(vel[k2] * aspect, vel[k2 + 1]);
+              if (sp > 0.5) {
+                vel[k2] *= 0.5 / sp;
+                vel[k2 + 1] *= 0.5 / sp;
+              }
+              simActive = true;
+            }
+          }
+        }
+        prevNdc.copy(mouseNdc);
+        prevValid = true;
+      }
+
+      if (simActive) {
+        let energy = 0;
+        for (let i = 0; i < N; i++) {
+          const k2 = i * 2;
+          const ox = offset[k2];
+          const oy = offset[k2 + 1];
+          const vx = vel[k2];
+          const vy = vel[k2 + 1];
+          if (ox === 0 && oy === 0 && vx === 0 && vy === 0) continue;
+          // x' = v - x (retour à la place), v' = -drag·v (frottement selon la masse)
+          offset[k2] = ox + (vx - ox) * dt;
+          offset[k2 + 1] = oy + (vy - oy) * dt;
+          const decay = Math.exp((-2.3 / Math.sqrt(mass[i])) * dt);
+          vel[k2] = vx * decay;
+          vel[k2 + 1] = vy * decay;
+          const en = Math.abs(offset[k2]) + Math.abs(offset[k2 + 1]) + Math.abs(vel[k2]) + Math.abs(vel[k2 + 1]);
+          if (en < 1e-5) {
+            offset[k2] = offset[k2 + 1] = vel[k2] = vel[k2 + 1] = 0;
+          } else energy += en;
+        }
+        offsetAttr.needsUpdate = true;
+        if (energy === 0) simActive = false;
       }
 
       pUniforms.uTime.value = t;
       bgUniforms.uTime.value = t;
+      nebUniforms.uTime.value = t;
+      const scrollN = window.scrollY / window.innerHeight;
+      nebUniforms.uScroll.value = scrollN;
+      bgUniforms.uScroll.value = scrollN;
 
+      renderer.setRenderTarget(nebTarget);
+      renderer.render(nebScene, bgCam);
+      renderer.setRenderTarget(null);
       renderer.clear();
       renderer.render(bgScene, bgCam);
       renderer.render(scene, camera);
@@ -453,8 +583,10 @@ export default function Stage() {
       document.documentElement.removeEventListener("mouseleave", onLeave);
       geo.dispose();
       pMat.dispose();
-      bgMesh.geometry.dispose();
+      quad.dispose();
       bgMat.dispose();
+      nebMat.dispose();
+      nebTarget.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };

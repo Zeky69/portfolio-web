@@ -6,7 +6,8 @@
   color-scheme: dark;
   --ink: #0b0a10;
   --cream: #f3eee6;
-  --ember: #ff5a1f;
+  --accent-rgb: 116 227 201;
+  --accent: rgb(var(--accent-rgb));
   --lilac: #b7a4ff;
   /* Grain SVG réutilisé partout où une couleur doit avoir de la matière */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -55,7 +56,7 @@ body {
 .stage-fallback {
   opacity: 1;
   background:
-    radial-gradient(60% 50% at 75% 40%, rgba(255, 90, 31, 0.22), transparent 70%),
+    radial-gradient(60% 50% at 75% 40%, rgba(116, 227, 201, 0.14), transparent 70%),
     radial-gradient(50% 40% at 20% 80%, rgba(183, 164, 255, 0.16), transparent 70%),
     var(--ink);
 }
@@ -87,17 +88,17 @@ html.has-custom-cursor * {
   background: var(--ink);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--ember);
+  background: var(--accent);
   border-radius: 2px;
 }
 
 ::selection {
-  background: var(--ember);
+  background: var(--accent);
   color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--ember);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -124,7 +125,7 @@ body::after {
 }
 
 @layer components {
-  /* Orange mat à micro-grain (façon aluminium sablé) : aucune lumière,
+  /* Couleur mate à micro-grain (façon aluminium sablé) : aucune lumière,
      aucun biseau — juste la matière, à plat. */
   .textured {
     position: relative;
@@ -242,7 +243,7 @@ body::after {
   font-weight: 600;
 }
 .project-markdown a {
-  color: #ff8a5c;
+  color: #a9f0df;
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
@@ -252,13 +253,13 @@ body::after {
   padding-left: 1.25rem;
 }
 .project-markdown ul li::marker {
-  color: var(--ember);
+  color: var(--accent);
 }
 .project-markdown li + li {
   margin-top: 0.45rem;
 }
 .project-markdown blockquote {
-  border-left: 2px solid var(--ember);
+  border-left: 2px solid var(--accent);
   background: rgba(20, 18, 27, 0.7);
   padding: 0.9rem 1.1rem;
   border-radius: 0 0.6rem 0.6rem 0;

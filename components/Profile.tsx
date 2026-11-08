@@ -43,7 +43,7 @@ export default function Profile() {
 
   return (
     <section id="profil" className="relative px-5 sm:px-8 lg:px-12">
-      <div data-stage="wave" data-side="left" data-c1="#FF5A1F" data-c2="#B7A4FF" className="mx-auto grid min-h-[100svh] max-w-[1600px] grid-cols-1 items-center py-28 md:grid-cols-12">
+      <div data-stage="wave" data-side="left" data-c1="#8FB8FF" data-c2="#C7A6FF" className="mx-auto grid min-h-[100svh] max-w-[1600px] grid-cols-1 items-center py-28 md:grid-cols-12">
         <div className="md:col-span-8 md:col-start-5 lg:col-span-7 lg:col-start-6">
           <SectionTitle n="02" label="Profil" title="Du code qui" accent="sert." />
           <p ref={ref} className="mt-12 text-[clamp(1.35rem,2.4vw,2.2rem)] font-medium leading-[1.3] tracking-[-0.02em]">

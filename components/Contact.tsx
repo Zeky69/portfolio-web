@@ -27,8 +27,8 @@ export default function Contact() {
       data-stage="scatter"
       data-dim="0.55"
       data-side="right"
-      data-c1="#FF5A1F"
-      data-c2="#B7A4FF"
+      data-c1="#74E3C9"
+      data-c2="#8FB8FF"
       className="relative flex min-h-[100svh] items-center px-5 py-28 sm:px-8 lg:px-12"
     >
       <div className="mx-auto w-full max-w-[1600px]">
