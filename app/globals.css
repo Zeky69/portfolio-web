@@ -12,8 +12,8 @@
   /* Reflets « peinture de voiture » posés sur le bleu nuit */
   --sheen-rgb: 28 56 150;
   --sheen-hi-rgb: 62 96 196;
-  /* Accent = la teinte la plus claire du footer quand le reflet passe dessus */
-  --accent-rgb: 32 51 108;
+  /* Accent = le bleu du footer éclairé par le reflet, remonté de deux crans */
+  --accent-rgb: 48 73 147;
   --accent: rgb(var(--accent-rgb));
   /* Bleu acier : couleur secondaire (mots en italique, libellés) */
   --steel: #6a76a0;
@@ -65,7 +65,7 @@ body {
   opacity: 1;
   background:
     radial-gradient(60% 50% at 75% 40%, rgba(28, 56, 150, 0.2), transparent 70%),
-    radial-gradient(50% 40% at 20% 80%, rgba(32, 51, 108, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 20% 80%, rgba(48, 73, 147, 0.18), transparent 70%),
     var(--ink);
 }
 

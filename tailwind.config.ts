@@ -25,7 +25,7 @@ const config: Config = {
         navy: "rgb(var(--navy-rgb) / <alpha-value>)",
         accent: "rgb(var(--accent-rgb) / <alpha-value>)",
         "accent-light": "#8A96C4",
-        "accent-dark": "#20336C",
+        "accent-dark": "#304993",
         steel: "#6A76A0",
         // Papier crème
         text: "#F3EEE6",
