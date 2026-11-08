@@ -112,12 +112,12 @@ export default function Cursor() {
             backgroundColor: state.label
               ? "rgba(58,108,255,1)"
               : state.hover
-                ? "rgba(58,77,156,0.14)"
-                : "rgba(58,77,156,0)",
+                ? "rgba(32,51,108,0.14)"
+                : "rgba(32,51,108,0)",
             borderColor: state.label
               ? "rgba(58,108,255,1)"
               : state.hover
-                ? "rgba(58,77,156,0.75)"
+                ? "rgba(32,51,108,0.75)"
                 : "rgba(243,238,230,0.35)",
             scale: state.down ? 0.85 : 1,
             opacity: state.hidden ? 0 : 1,

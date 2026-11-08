@@ -20,12 +20,12 @@ const config: Config = {
         "surface-hover": "#1C1925",
         border: "rgba(243,238,230,0.10)",
         "border-hover": "rgba(243,238,230,0.22)",
-        // Bleu nuit (surfaces) + cobalt nuit (accent : textes ; accent-dark : boutons) + bleu acier sourd (secondaire).
+        // Bleu nuit (surfaces) + accent = bleu du footer éclairé par le reflet + bleu acier sourd (secondaire).
         // Les deux viennent de variables CSS pour les changer en un seul endroit.
         navy: "rgb(var(--navy-rgb) / <alpha-value>)",
         accent: "rgb(var(--accent-rgb) / <alpha-value>)",
         "accent-light": "#8A96C4",
-        "accent-dark": "#2F428C",
+        "accent-dark": "#20336C",
         steel: "#6A76A0",
         // Papier crème
         text: "#F3EEE6",

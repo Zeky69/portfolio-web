@@ -91,7 +91,7 @@ export default function Journey() {
               >
                 <span
                   className={`absolute -left-8 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-bg sm:-left-12 ${
-                    s.current ? "bg-accent shadow-[0_0_20px_rgba(58,77,156,0.9)]" : "bg-text"
+                    s.current ? "bg-accent shadow-[0_0_20px_rgba(32,51,108,0.9)]" : "bg-text"
                   }`}
                 />
                 <p className="label flex flex-wrap items-center gap-3 text-muted">
