@@ -27,7 +27,7 @@ export default function Contact() {
       data-stage="scatter"
       data-dim="0.55"
       data-side="right"
-      data-c1="#74E3C9"
+      data-c1="#5C8DFF"
       data-c2="#8FB8FF"
       className="relative flex min-h-[100svh] items-center px-5 py-28 sm:px-8 lg:px-12"
     >
@@ -63,7 +63,7 @@ export default function Contact() {
               <a
                 href={`mailto:${EMAIL}`}
                 data-cursor="Écrire"
-                className="textured group inline-flex items-center gap-4 overflow-hidden rounded-full bg-accent py-4 pl-7 pr-4 text-[clamp(1rem,1.6vw,1.25rem)] font-semibold text-bg"
+                className="group inline-flex items-center gap-4 rounded-full bg-accent-dark py-4 pl-7 pr-4 text-[clamp(1rem,1.6vw,1.25rem)] font-semibold text-text"
               >
                 {EMAIL}
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-bg text-accent transition-transform duration-500 ease-expo group-hover:rotate-45">

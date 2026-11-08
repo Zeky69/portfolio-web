@@ -61,7 +61,7 @@ export default function Navbar() {
             className="group flex items-center gap-3 rounded-full py-1 pl-1 pr-3"
             aria-label="Retour en haut"
           >
-            <span className="textured grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-accent text-[13px] font-extrabold tracking-tight text-bg">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent-dark text-[13px] font-extrabold tracking-tight text-text">
               ZA
             </span>
             <span className="hidden text-sm font-medium tracking-tight sm:inline">
@@ -95,7 +95,7 @@ export default function Navbar() {
             <a
               href="mailto:zek.akburak@gmail.com"
               data-cursor="Écrire"
-              className="textured hidden overflow-hidden rounded-full bg-text px-5 py-2.5 text-sm font-semibold text-bg transition-colors duration-300 hover:bg-accent sm:inline-flex"
+              className="textured hidden overflow-hidden rounded-full bg-text px-5 py-2.5 text-sm font-semibold text-bg transition-colors duration-300 hover:bg-accent-dark hover:text-text sm:inline-flex"
             >
               Me contacter
             </a>
@@ -129,7 +129,7 @@ export default function Navbar() {
             animate={{ clipPath: "circle(150% at 100% 0%)" }}
             exit={{ clipPath: "circle(0% at 100% 0%)" }}
             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-            className="textured fixed inset-0 z-[75] flex flex-col justify-end bg-accent px-6 pb-12 pt-28"
+            className="paint !fixed inset-0 z-[75] flex flex-col justify-end px-6 pb-12 pt-28"
           >
             <ul>
               {links.map((l, i) => (
@@ -138,11 +138,11 @@ export default function Navbar() {
                   initial={{ y: 60, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.8, ease: easeExpo, delay: 0.2 + i * 0.06 }}
-                  className="border-b border-bg/20"
+                  className="border-b border-text/15"
                 >
                   <button
                     onClick={() => go(l.href)}
-                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.05em] text-bg"
+                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.05em]"
                   >
                     {l.label}
                     <span className="font-mono text-xs font-normal tracking-normal">{l.n}</span>
@@ -150,7 +150,7 @@ export default function Navbar() {
                 </motion.li>
               ))}
             </ul>
-            <a href="mailto:zek.akburak@gmail.com" className="mt-8 font-mono text-sm text-bg">
+            <a href="mailto:zek.akburak@gmail.com" className="mt-8 font-mono text-sm text-text/80">
               zek.akburak@gmail.com
             </a>
           </motion.div>

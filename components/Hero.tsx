@@ -52,7 +52,7 @@ export default function Hero() {
           {...show(0.55)}
           className="mt-10 max-w-[30ch] font-serif text-[clamp(1.6rem,2.8vw,2.6rem)] leading-[1.08] text-text"
         >
-          Je construis des outils <em className="text-lilac">qu&apos;on utilise vraiment</em> — apps macOS,
+          Je construis des outils <em className="text-steel">qu&apos;on utilise vraiment</em> — apps macOS,
           sites en production, IA qui tourne en local.
         </motion.p>
 
@@ -61,7 +61,7 @@ export default function Hero() {
             <button
               onClick={() => scrollToTarget("#projets")}
               data-cursor="Go"
-              className="textured group inline-flex items-center gap-3 overflow-hidden rounded-full bg-accent px-6 py-4 text-sm font-semibold text-bg"
+              className="group inline-flex items-center gap-3 rounded-full bg-accent-dark px-6 py-4 text-sm font-semibold text-text"
             >
               Voir les projets
               <ArrowDownRight size={16} className="transition-transform duration-500 ease-expo group-hover:rotate-[-45deg]" />

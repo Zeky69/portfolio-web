@@ -40,7 +40,7 @@ export default function SectionTitle({
         {accent && (
           <>
             {" "}
-            <span className="font-serif text-[0.92em] font-normal italic tracking-[-0.02em] text-lilac">
+            <span className="font-serif text-[0.92em] font-normal italic tracking-[-0.02em] text-steel">
               <RevealText text={accent} delay={0.15} />
             </span>
           </>

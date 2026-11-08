@@ -6,9 +6,17 @@
   color-scheme: dark;
   --ink: #0b0a10;
   --cream: #f3eee6;
-  --accent-rgb: 116 227 201;
+  /* Bleu nuit : la couleur principale (surfaces pleines : footer, bandeau, boutons) */
+  --navy-rgb: 5 10 30;
+  --navy: rgb(var(--navy-rgb));
+  /* Reflets « peinture de voiture » posés sur le bleu nuit */
+  --sheen-rgb: 28 56 150;
+  --sheen-hi-rgb: 62 96 196;
+  /* Accent lisible sur fond sombre (textes, puces, détails) : le même bleu, éclairci */
+  --accent-rgb: 58 77 156;
   --accent: rgb(var(--accent-rgb));
-  --lilac: #b7a4ff;
+  /* Bleu acier : couleur secondaire (mots en italique, libellés) */
+  --steel: #6a76a0;
   /* Grain SVG réutilisé partout où une couleur doit avoir de la matière */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -56,8 +64,8 @@ body {
 .stage-fallback {
   opacity: 1;
   background:
-    radial-gradient(60% 50% at 75% 40%, rgba(116, 227, 201, 0.14), transparent 70%),
-    radial-gradient(50% 40% at 20% 80%, rgba(183, 164, 255, 0.16), transparent 70%),
+    radial-gradient(60% 50% at 75% 40%, rgba(28, 56, 150, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 20% 80%, rgba(58, 77, 156, 0.16), transparent 70%),
     var(--ink);
 }
 
@@ -144,6 +152,58 @@ body::after {
     pointer-events: none;
   }
 
+  /* Peinture bleu nuit métallisée (façon carrosserie) : base sombre, reflets
+     d'un bleu plus lumineux, très diffus, qui glissent quand l'élément
+     traverse l'écran, et un grain bien présent par-dessus. */
+  .paint {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    background-color: var(--navy);
+    color: var(--cream);
+    view-timeline: --paint block;
+  }
+  .paint::before,
+  .paint::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+  /* Reflets : un point chaud, une longue traînée diagonale, une lueur basse */
+  .paint::before {
+    inset: -60% -40%;
+    background:
+      radial-gradient(22% 30% at 58% 42%, rgb(var(--sheen-hi-rgb) / 0.38), rgb(var(--sheen-hi-rgb) / 0) 100%),
+      linear-gradient(
+        112deg,
+        rgb(var(--sheen-rgb) / 0) 30%,
+        rgb(var(--sheen-rgb) / 0.2) 41%,
+        rgb(var(--sheen-hi-rgb) / 0.3) 47%,
+        rgb(var(--sheen-rgb) / 0.2) 53%,
+        rgb(var(--sheen-rgb) / 0) 64%
+      ),
+      radial-gradient(40% 30% at 22% 78%, rgb(var(--sheen-rgb) / 0.3), rgb(var(--sheen-rgb) / 0) 100%);
+    animation: sheen-drift 14s ease-in-out infinite alternate;
+  }
+  /* Grain : bruit blanc gaussien (aucune structure, donc aucun motif qui se
+     répète), un grain par pixel écran, en overlay — discret dans le sombre,
+     granuleux dans les reflets */
+  .paint::after {
+    inset: 0;
+    border-radius: inherit;
+    background-image: url("/textures/noise.webp");
+    background-size: 192px 192px;
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+  }
+  @supports (animation-timeline: view()) {
+    .paint::before {
+      animation: sheen-pass linear both;
+      animation-timeline: --paint;
+    }
+  }
+
   .glass {
     background: rgba(20, 18, 27, 0.55);
     backdrop-filter: blur(18px) saturate(140%);
@@ -171,6 +231,17 @@ body::after {
     font-variation-settings: "wdth" 100;
     font-stretch: 100%;
   }
+}
+
+/* Le reflet traverse la surface pendant qu'on la fait défiler */
+@keyframes sheen-pass {
+  from { transform: translate3d(-22%, 6%, 0); }
+  to { transform: translate3d(22%, -6%, 0); }
+}
+/* Sans scroll-driven animations : dérive lente */
+@keyframes sheen-drift {
+  from { transform: translate3d(-14%, 4%, 0); }
+  to { transform: translate3d(14%, -4%, 0); }
 }
 
 @keyframes caret {
@@ -243,7 +314,7 @@ body::after {
   font-weight: 600;
 }
 .project-markdown a {
-  color: #a9f0df;
+  color: #8a96c4;
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;

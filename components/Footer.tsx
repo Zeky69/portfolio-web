@@ -10,8 +10,8 @@ export default function Footer() {
   const y = useTransform(scrollYProgress, [0, 1], ["40%", "0%"]);
 
   return (
-    <footer ref={ref} data-stage="scatter" data-dim="0.3" className="relative z-10 overflow-hidden">
-      <div className="textured overflow-hidden rounded-t-[28px] bg-accent px-5 pt-10 text-bg sm:rounded-t-[40px] sm:px-8 lg:px-12">
+    <footer ref={ref} data-stage="scatter" data-dim="0.3" className="relative z-10 overflow-clip">
+      <div className="paint rounded-t-[28px] px-5 pt-10 sm:rounded-t-[40px] sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-start justify-between gap-6 text-sm font-medium">
           <p>© {new Date().getFullYear()} Zekeriya Akburak — conçu et codé à la main.</p>
           <div className="flex gap-6">

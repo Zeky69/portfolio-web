@@ -20,11 +20,13 @@ const config: Config = {
         "surface-hover": "#1C1925",
         border: "rgba(243,238,230,0.10)",
         "border-hover": "rgba(243,238,230,0.22)",
-        // Aurore (vert d'eau) + lilas — l'accent vient d'une variable CSS pour le changer en un seul endroit
+        // Bleu nuit (surfaces) + cobalt nuit (accent : textes ; accent-dark : boutons) + bleu acier sourd (secondaire).
+        // Les deux viennent de variables CSS pour les changer en un seul endroit.
+        navy: "rgb(var(--navy-rgb) / <alpha-value>)",
         accent: "rgb(var(--accent-rgb) / <alpha-value>)",
-        "accent-light": "#A9F0DF",
-        "accent-dark": "#2DB894",
-        lilac: "#B7A4FF",
+        "accent-light": "#8A96C4",
+        "accent-dark": "#2F428C",
+        steel: "#6A76A0",
         // Papier crème
         text: "#F3EEE6",
         muted: "#8F8A99",

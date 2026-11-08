@@ -60,7 +60,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             label="Projets"
             className="group inline-flex items-center gap-3 rounded-full py-1 pl-1 pr-4 text-sm"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-full border border-border-hover transition-all duration-500 ease-expo group-hover:-translate-x-1 group-hover:border-accent group-hover:bg-accent group-hover:text-bg">
+            <span className="grid h-9 w-9 place-items-center rounded-full border border-border-hover transition-all duration-500 ease-expo group-hover:-translate-x-1 group-hover:border-accent-dark group-hover:bg-accent-dark group-hover:text-text">
               <ArrowLeft size={15} />
             </span>
             Tous les projets
@@ -68,7 +68,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <TransitionLink
             href="/"
             label="Accueil"
-            className="textured grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-accent text-[13px] font-extrabold tracking-tight text-bg"
+            className="grid h-9 w-9 place-items-center rounded-full bg-accent-dark text-[13px] font-extrabold tracking-tight text-text"
             aria-label="Accueil"
           >
             ZA

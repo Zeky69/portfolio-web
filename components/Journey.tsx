@@ -78,7 +78,7 @@ export default function Journey() {
             <span className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px bg-border" />
             <motion.span
               style={{ scaleY: line }}
-              className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-accent via-[#8FB8FF] to-lilac"
+              className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px origin-top bg-gradient-to-b from-accent via-[#8FB8FF] to-steel"
             />
             {steps.map((s, i) => (
               <motion.li
@@ -91,11 +91,11 @@ export default function Journey() {
               >
                 <span
                   className={`absolute -left-8 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-bg sm:-left-12 ${
-                    s.current ? "bg-accent shadow-[0_0_20px_rgba(116,227,201,0.9)]" : "bg-text"
+                    s.current ? "bg-accent shadow-[0_0_20px_rgba(58,77,156,0.9)]" : "bg-text"
                   }`}
                 />
                 <p className="label flex flex-wrap items-center gap-3 text-muted">
-                  <span className={s.kind === "Expérience" ? "text-accent" : "text-lilac"}>{s.kind}</span>
+                  <span className={s.kind === "Expérience" ? "text-accent" : "text-steel"}>{s.kind}</span>
                   <span className="tabular">{s.period}</span>
                 </p>
                 <h3 className="mt-3 text-[clamp(1.5rem,2.8vw,2.4rem)] font-bold leading-[1.05] tracking-[-0.035em]">{s.title}</h3>

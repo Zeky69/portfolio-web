@@ -8,8 +8,8 @@ import { setIntroDone } from "@/lib/intro";
 import { bgFragment, bgVertex, nebulaFragment, particleFragment, particleVertex } from "./shaders";
 
 const INK = "#0B0A10";
-const DEFAULT_A = "#74E3C9";
-const DEFAULT_B = "#B7A4FF";
+const DEFAULT_A = "#7FA6FF";
+const DEFAULT_B = "#5C8DFF";
 // Teintes d'étoiles (RVB linéaire 0..1) : surtout du blanc froid, un peu de bleu et de pêche
 const STAR_TINTS: [number, number, number][] = [
   [0.86, 0.91, 1.0], // blanc froid
