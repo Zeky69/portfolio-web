@@ -76,12 +76,14 @@ const steps: Step[] = [
  * déclare le sien. La scène ne regarde que le haut de chaque bloc : une étape imbriquée
  * prend donc le relais dès qu'elle atteint le milieu de l'écran.
  */
-const stage = (s: Step, morph = 0.25) => ({
+const stage = (s: Step, morph = 0.25, lead = 0.85) => ({
   "data-stage": s.logo,
   "data-side": "left",
   "data-c1": s.tint[0],
   "data-c2": s.tint[1],
   "data-morph": String(morph),
+  // Le logo est déjà formé quand le point de l'étape passe le milieu de l'écran
+  "data-lead": String(lead),
 });
 
 export default function Journey() {
@@ -92,7 +94,7 @@ export default function Journey() {
   return (
     <section
       id="parcours"
-      {...stage(steps[0], 0.5)}
+      {...stage(steps[0], 0.5, 0)}
       className="relative px-5 py-28 sm:px-8 md:py-40 lg:px-12"
     >
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 md:grid-cols-12">

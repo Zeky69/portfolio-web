@@ -28,6 +28,8 @@ type Target = {
   dim: number;
   /** Part de la hauteur de section consacrée au morph (0,5 par défaut, moins = forme stable plus longtemps) */
   morph: number;
+  /** Avance du morph vers cette section, en fraction de demi-fenêtre (0 = centré sur son bord haut) */
+  lead: number;
 };
 
 type Section = { top: number; bottom: number; t: Target };
@@ -42,6 +44,7 @@ function readTarget(el: HTMLElement): Target {
     c2: new THREE.Color(d.c2 ?? DEFAULT_B),
     dim: d.dim ? parseFloat(d.dim) : 1,
     morph: d.morph ? parseFloat(d.morph) : 0.5,
+    lead: d.lead ? parseFloat(d.lead) : 0,
   };
 }
 
@@ -267,7 +270,9 @@ export default function Stage() {
         const cur = sections[k];
         const B = cur.top;
         const H = Math.max(40, Math.min(vh * 0.42, (prev.bottom - prev.top) * prev.t.morph, (cur.bottom - cur.top) * cur.t.morph));
-        if (probe > B - H && probe < B + H) return { a: k - 1, b: k, p: (probe - (B - H)) / (2 * H) };
+        // Avec une avance, la forme est déjà complète quand le bord de la section atteint le milieu de l'écran
+        const C = B - cur.t.lead * H;
+        if (probe > C - H && probe < C + H) return { a: k - 1, b: k, p: (probe - (C - H)) / (2 * H) };
       }
       let i = 0;
       for (let k = 0; k < sections.length; k++) if (sections[k].top <= probe) i = k;
