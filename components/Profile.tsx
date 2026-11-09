@@ -45,7 +45,7 @@ export default function Profile() {
     <section id="profil" className="relative px-5 sm:px-8 lg:px-12">
       <div data-stage="wave" data-side="left" data-c1="#8FB8FF" data-c2="#5C8DFF" className="mx-auto grid min-h-[100svh] max-w-[1600px] grid-cols-1 items-center py-28 md:grid-cols-12">
         <div className="md:col-span-8 md:col-start-5 lg:col-span-7 lg:col-start-6">
-          <SectionTitle n="02" label="Profil" title="Du code qui" accent="sert." />
+          <SectionTitle label="Profil" title="Du code qui" accent="sert." />
           <p ref={ref} className="mt-12 text-[clamp(1.35rem,2.4vw,2.2rem)] font-medium leading-[1.3] tracking-[-0.02em]">
             {words.map((w, i) => {
               const start = i / words.length;
@@ -63,7 +63,7 @@ export default function Profile() {
                 transition={{ duration: 1, ease: easeExpo, delay: i * 0.1 }}
                 className="bg-bg/75 p-4 backdrop-blur sm:p-6"
               >
-                <p className="text-[clamp(1.8rem,4vw,3.4rem)] font-extrabold leading-none tracking-[-0.04em] text-accent">{s.value}</p>
+                <p className="text-[clamp(1.8rem,4vw,3.4rem)] font-extrabold leading-none tracking-[-0.02em] text-accent">{s.value}</p>
                 <p className="mt-3 text-xs leading-snug text-muted-light sm:text-sm">{s.label}</p>
               </motion.div>
             ))}
@@ -89,10 +89,9 @@ export default function Profile() {
                 className="group border-t border-border py-7 last:border-b"
               >
                 <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-[clamp(1.6rem,3vw,2.6rem)] font-bold tracking-[-0.035em] transition-transform duration-700 ease-expo group-hover:translate-x-2">
+                  <h3 className="text-[clamp(1.6rem,3vw,2.6rem)] font-bold tracking-[-0.015em] transition-transform duration-700 ease-expo group-hover:translate-x-2">
                     {g.title}
                   </h3>
-                  <span className="label tabular text-muted">{String(i + 1).padStart(2, "0")}</span>
                 </div>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {g.items.map((it) => (

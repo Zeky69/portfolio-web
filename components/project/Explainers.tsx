@@ -31,10 +31,7 @@ function Steps({ steps, c }: { steps: Step[]; c: Colors }) {
           className="grid grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-10"
         >
           <div className={`min-w-0 md:col-span-4 ${i % 2 ? "md:order-2" : ""}`}>
-            <p className="label tabular" style={{ color: c[0] }}>
-              Étape {String(i + 1).padStart(2, "0")}
-            </p>
-            <h3 className="mt-3 text-[clamp(1.7rem,3vw,2.6rem)] font-bold leading-[1.02] tracking-[-0.035em]">
+            <h3 className="text-[clamp(1.7rem,3vw,2.6rem)] font-bold leading-[1.02] tracking-[-0.015em]">
               {s.title}
             </h3>
             <p className="mt-4 max-w-[38ch] leading-relaxed text-muted-light">{s.text}</p>
@@ -395,7 +392,7 @@ function RagChunk({ c }: { c: Colors }) {
             key={step}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="tabular text-[clamp(1.8rem,4vw,3rem)] font-extrabold leading-none tracking-[-0.04em]"
+            className="tabular text-[clamp(1.8rem,4vw,3rem)] font-extrabold leading-none tracking-[-0.02em]"
             style={{ color: c[0] }}
           >
             {split ? "15 050" : "1 fichier"}
@@ -799,7 +796,7 @@ function CmmProblem({ c }: { c: Colors }) {
           </motion.div>
         ))}
       </div>
-      <p className="mt-6 text-[clamp(2rem,5vw,3.6rem)] font-extrabold leading-none tracking-[-0.04em]" style={{ color: c[0] }}>
+      <p className="mt-6 text-[clamp(2rem,5vw,3.6rem)] font-extrabold leading-none tracking-[-0.02em]" style={{ color: c[0] }}>
         ≈ 30 %
       </p>
       <p className={`${mono} mt-1 text-muted`}>de JSON valide avec un modèle de 0,6 milliard de paramètres</p>
@@ -937,8 +934,8 @@ export default function Explainer({ slug, colors }: { slug: string; colors: Colo
         Comment ça marche
       </p>
       <h2
-        className="mb-14 mt-5 text-[clamp(2.4rem,6vw,5.5rem)] font-extrabold leading-[0.9] tracking-[-0.05em] md:mb-20"
-        style={{ fontVariationSettings: '"wdth" 80' }}
+        className="mb-14 mt-5 text-[clamp(2.4rem,6vw,5.5rem)] font-extrabold leading-[0.9] tracking-[-0.025em] md:mb-20"
+        style={{ fontVariationSettings: '"wdth" 85' }}
       >
         En {steps.length} <span className="font-serif font-normal italic tracking-[-0.02em]" style={{ color: colors[1] }}>étapes.</span>
       </h2>

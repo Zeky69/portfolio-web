@@ -7,10 +7,10 @@ import { scrollToTarget } from "@/lib/lenis";
 import { easeExpo } from "@/lib/animations";
 
 const links = [
-  { href: "#projets", label: "Projets", n: "01" },
-  { href: "#profil", label: "Profil", n: "02" },
-  { href: "#parcours", label: "Parcours", n: "03" },
-  { href: "#contact", label: "Contact", n: "04" },
+  { href: "#projets", label: "Projets" },
+  { href: "#profil", label: "Profil" },
+  { href: "#parcours", label: "Parcours" },
+  { href: "#contact", label: "Contact" },
 ];
 
 export default function Navbar() {
@@ -142,10 +142,9 @@ export default function Navbar() {
                 >
                   <button
                     onClick={() => go(l.href)}
-                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.05em]"
+                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.025em]"
                   >
                     {l.label}
-                    <span className="font-mono text-xs font-normal tracking-normal">{l.n}</span>
                   </button>
                 </motion.li>
               ))}

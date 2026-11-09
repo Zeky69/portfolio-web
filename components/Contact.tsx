@@ -38,8 +38,8 @@ export default function Contact() {
           Contact
         </p>
         <h2
-          className="mt-8 max-w-[14ch] text-[clamp(3.2rem,9vw,9.5rem)] font-extrabold leading-[0.86] tracking-[-0.055em]"
-          style={{ fontVariationSettings: '"wdth" 78' }}
+          className="mt-8 max-w-[14ch] text-[clamp(3.2rem,9vw,9.5rem)] font-extrabold leading-[0.86] tracking-[-0.03em]"
+          style={{ fontVariationSettings: '"wdth" 85' }}
         >
           <RevealText text="On construit" />{" "}
           <span className="font-serif font-normal italic tracking-[-0.02em] text-accent">

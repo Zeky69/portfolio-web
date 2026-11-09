@@ -51,7 +51,7 @@ export default function Band() {
       <div className="paint -rotate-2 scale-[1.04] py-5 shadow-[0_30px_80px_-30px_rgba(20,40,120,0.6)] sm:py-7">
         <motion.div
           style={{ x }}
-          className="flex w-max whitespace-nowrap text-[clamp(2.4rem,7vw,6.5rem)] font-extrabold leading-none tracking-[-0.045em]"
+          className="flex w-max whitespace-nowrap text-[clamp(2.4rem,7vw,6.5rem)] font-extrabold leading-none tracking-[-0.02em]"
         >
           {row}
           {row}

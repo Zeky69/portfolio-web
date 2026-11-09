@@ -86,16 +86,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         >
           <FadeIn y={12} delay={0.2}>
             <p className="label flex flex-wrap items-center gap-3 text-muted-light">
-              <span style={{ color: project.colors[0] }}>
-                {String(index + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
-              </span>
-              <span className="h-px w-8 bg-border-hover" />
+              <span className="h-px w-8" style={{ background: project.colors[0] }} />
               {project.status}
             </p>
           </FadeIn>
           <h1
-            className="mt-8 max-w-[12ch] text-[clamp(3.4rem,11vw,11rem)] font-extrabold leading-[0.85] tracking-[-0.055em]"
-            style={{ fontVariationSettings: '"wdth" 78' }}
+            className="mt-8 max-w-[12ch] text-[clamp(3.4rem,11vw,11rem)] font-extrabold leading-[0.85] tracking-[-0.03em]"
+            style={{ fontVariationSettings: '"wdth" 85' }}
           >
             <RevealText text={project.title} delay={0.3} stagger={0.03} play />
           </h1>
@@ -256,8 +253,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <div>
             <p className="label text-muted">Projet suivant</p>
             <p
-              className="mt-5 text-[clamp(2.8rem,9vw,9rem)] font-extrabold leading-[0.88] tracking-[-0.055em] transition-transform duration-700 ease-expo group-hover:translate-x-4"
-              style={{ fontVariationSettings: '"wdth" 78' }}
+              className="mt-5 text-[clamp(2.8rem,9vw,9rem)] font-extrabold leading-[0.88] tracking-[-0.03em] transition-transform duration-700 ease-expo group-hover:translate-x-4"
+              style={{ fontVariationSettings: '"wdth" 85' }}
             >
               {next.title}
             </p>

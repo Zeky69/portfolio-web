@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import SectionTitle from "@/components/SectionTitle";
 import { easeExpo } from "@/lib/animations";
+import type { LogoName } from "@/lib/shapes";
 
 type Step = {
   period: string;
@@ -13,6 +14,8 @@ type Step = {
   text: string;
   tags?: string[];
   current?: boolean;
+  /** Logo dessiné en particules pendant qu'on lit cette étape */
+  logo: LogoName;
 };
 
 const steps: Step[] = [
@@ -23,6 +26,7 @@ const steps: Step[] = [
     place: "UTT · Université de Technologie de Troyes",
     text: "Première année de branche, en formation initiale.",
     current: true,
+    logo: "logo-utt",
   },
   {
     period: "2025 — 2026",
@@ -30,6 +34,7 @@ const steps: Step[] = [
     title: "École 42",
     place: "Campus de Mulhouse",
     text: "Pédagogie par projets, sans cours : RAG, décodage contraint, Docker, threads en C, Pac-Man, labyrinthes, routage de drones.",
+    logo: "logo-42",
   },
   {
     period: "2024 — 2025",
@@ -38,6 +43,7 @@ const steps: Step[] = [
     place: "SDIS 25 · Pompiers du Doubs",
     text: "Développement d'Optimops, l'outil de gestion et d'analyse des données opérationnelles : tableaux de bord, génération de rapports et simulations via un jumeau numérique.",
     tags: ["Vue.js", "Python", "Flask", "MongoDB"],
+    logo: "logo-sdis",
   },
   {
     period: "Avr — Juin 2024",
@@ -46,6 +52,7 @@ const steps: Step[] = [
     place: "Laboratoire FEMTO-ST",
     text: "Apprentissage fédéré (Federated Learning) pour prévoir la consommation et la production d'énergies renouvelables, solaire et éolien.",
     tags: ["Python", "TensorFlow", "Scikit-Learn"],
+    logo: "logo-femto",
   },
   {
     period: "2022 — 2025",
@@ -53,8 +60,22 @@ const steps: Step[] = [
     title: "BUT Informatique",
     place: "IUT Nord-Franche-Comté · Montbéliard",
     text: "Diplôme obtenu, dernière année en alternance.",
+    logo: "logo-iut",
   },
 ];
+
+/**
+ * La section porte le premier logo (titre + première étape) ; chaque étape suivante
+ * déclare le sien. La scène ne regarde que le haut de chaque bloc : une étape imbriquée
+ * prend donc le relais dès qu'elle atteint le milieu de l'écran.
+ */
+const stage = (logo: LogoName, morph = 0.3) => ({
+  "data-stage": logo,
+  "data-side": "left",
+  "data-c1": "#FFC48A",
+  "data-c2": "#FF8FB1",
+  "data-morph": String(morph),
+});
 
 export default function Journey() {
   const ref = useRef<HTMLOListElement>(null);
@@ -64,15 +85,12 @@ export default function Journey() {
   return (
     <section
       id="parcours"
-      data-stage="knot"
-      data-side="left"
-      data-c1="#FFC48A"
-      data-c2="#FF8FB1"
+      {...stage(steps[0].logo, 0.5)}
       className="relative px-5 py-28 sm:px-8 md:py-40 lg:px-12"
     >
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 md:grid-cols-12">
         <div className="md:col-span-8 md:col-start-5 lg:col-span-7 lg:col-start-6">
-          <SectionTitle n="03" label="Parcours" title="Le chemin" accent="jusqu'ici." />
+          <SectionTitle label="Parcours" title="Le chemin" accent="jusqu'ici." />
 
           <ol ref={ref} className="relative mt-16 pl-8 sm:pl-12">
             <span className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px bg-border" />
@@ -87,7 +105,8 @@ export default function Journey() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 1, ease: easeExpo, delay: 0.05 * i }}
-                className="relative pb-14 last:pb-0"
+                {...(i > 0 ? stage(s.logo) : {})}
+                className="relative pb-14 last:pb-0 md:min-h-[75vh]"
               >
                 <span
                   className={`absolute -left-8 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-bg sm:-left-12 ${
@@ -98,7 +117,7 @@ export default function Journey() {
                   <span className={s.kind === "Expérience" ? "text-accent" : "text-steel"}>{s.kind}</span>
                   <span className="tabular">{s.period}</span>
                 </p>
-                <h3 className="mt-3 text-[clamp(1.5rem,2.8vw,2.4rem)] font-bold leading-[1.05] tracking-[-0.035em]">{s.title}</h3>
+                <h3 className="mt-3 text-[clamp(1.5rem,2.8vw,2.4rem)] font-bold leading-[1.05] tracking-[-0.015em]">{s.title}</h3>
                 <p className="mt-2 font-serif text-xl italic text-muted-light">{s.place}</p>
                 <p className="mt-4 max-w-[58ch] leading-relaxed text-muted-light">{s.text}</p>
                 {s.tags && (

@@ -37,8 +37,8 @@ export default function Hero() {
         </motion.p>
 
         <h1
-          className="mt-10 font-extrabold leading-[0.84] tracking-[-0.055em] sm:mt-14"
-          style={{ fontVariationSettings: '"wdth" 78, "opsz" 96' }}
+          className="mt-10 font-extrabold leading-[0.84] tracking-[-0.03em] sm:mt-14"
+          style={{ fontVariationSettings: '"wdth" 85' }}
         >
           <span className="block text-[clamp(3.6rem,13.5vw,13rem)]">
             <RevealText text="Zekeriya" play={intro} delay={0.05} stagger={0.035} />
@@ -47,14 +47,6 @@ export default function Hero() {
             <RevealText text="Akburak" play={intro} delay={0.2} stagger={0.035} />
           </span>
         </h1>
-
-        <motion.p
-          {...show(0.55)}
-          className="mt-10 max-w-[30ch] font-serif text-[clamp(1.6rem,2.8vw,2.6rem)] leading-[1.08] text-text"
-        >
-          Je construis des outils <em className="text-steel">qu&apos;on utilise vraiment</em> — apps macOS,
-          sites en production, IA qui tourne en local.
-        </motion.p>
 
         <motion.div {...show(0.7)} className="mt-10 flex flex-wrap items-center gap-3">
           <Magnetic strength={0.25}>

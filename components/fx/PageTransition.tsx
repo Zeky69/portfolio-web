@@ -90,7 +90,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
         onAnimationComplete={onDone}
       >
         <motion.span
-          className="font-display text-[clamp(2.5rem,9vw,8rem)] font-bold leading-[0.9] tracking-[-0.045em] text-text"
+          className="font-display text-[clamp(2.5rem,9vw,8rem)] font-bold leading-[0.9] tracking-[-0.02em] text-text"
           animate={{ y: phase === "out" ? 0 : 40, opacity: phase === "out" ? 1 : 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >

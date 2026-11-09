@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { getShape, type ShapeContext, type ShapeName, SHAPES } from "@/lib/shapes";
+import { getShape, getShapeColors, preloadLogos, type ShapeContext, type ShapeName, SHAPES } from "@/lib/shapes";
 import { registerBurst } from "@/lib/stage";
 import { setIntroDone } from "@/lib/intro";
 import { bgFragment, bgVertex, nebulaFragment, particleFragment, particleVertex } from "./shaders";
@@ -26,6 +26,8 @@ type Target = {
   c1: THREE.Color;
   c2: THREE.Color;
   dim: number;
+  /** Part de la hauteur de section consacrée au morph (0,5 par défaut, moins = forme stable plus longtemps) */
+  morph: number;
 };
 
 type Section = { top: number; bottom: number; t: Target };
@@ -39,6 +41,7 @@ function readTarget(el: HTMLElement): Target {
     c1: new THREE.Color(d.c1 ?? DEFAULT_A),
     c2: new THREE.Color(d.c2 ?? DEFAULT_B),
     dim: d.dim ? parseFloat(d.dim) : 1,
+    morph: d.morph ? parseFloat(d.morph) : 0.5,
   };
 }
 
@@ -158,6 +161,13 @@ export default function Stage() {
     geo.setAttribute("aFrom", fromAttr);
     geo.setAttribute("aTo", toAttr);
     geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 4));
+    // Couleur propre (logos du parcours) : rgb + poids, au départ et à l'arrivée du morph
+    const fromCol = new Float32Array(N * 4);
+    const toCol = new Float32Array(N * 4);
+    const fromColAttr = new THREE.BufferAttribute(fromCol, 4);
+    const toColAttr = new THREE.BufferAttribute(toCol, 4);
+    geo.setAttribute("aLogoFrom", fromColAttr);
+    geo.setAttribute("aLogoTo", toColAttr);
 
     // Étoiles : magnitude (beaucoup de faibles, quelques brillantes) et teinte neutre
     const mag = new Float32Array(N);
@@ -217,10 +227,15 @@ export default function Stage() {
         from[k] += (to[k] - from[k]) * e;
         from[k + 1] += (to[k + 1] - from[k + 1]) * e;
         from[k + 2] += (to[k + 2] - from[k + 2]) * e;
+        const c = i * 4;
+        for (let j = 0; j < 4; j++) fromCol[c + j] += (toCol[c + j] - fromCol[c + j]) * e;
       }
       to.set(getShape(name, ctx));
+      toCol.set(getShapeColors(name, ctx));
       fromAttr.needsUpdate = true;
       toAttr.needsUpdate = true;
+      fromColAttr.needsUpdate = true;
+      toColAttr.needsUpdate = true;
       currentShape = name;
       progress = reduced ? 1 : 0;
       pUniforms.uProgress.value = progress;
@@ -251,7 +266,7 @@ export default function Stage() {
         const prev = sections[k - 1];
         const cur = sections[k];
         const B = cur.top;
-        const H = Math.max(40, Math.min(vh * 0.42, (prev.bottom - prev.top) * 0.5, (cur.bottom - cur.top) * 0.5));
+        const H = Math.max(40, Math.min(vh * 0.42, (prev.bottom - prev.top) * prev.t.morph, (cur.bottom - cur.top) * cur.t.morph));
         if (probe > B - H && probe < B + H) return { a: k - 1, b: k, p: (probe - (B - H)) / (2 * H) };
       }
       let i = 0;
@@ -262,10 +277,16 @@ export default function Stage() {
     const loadPair = (a: number, b: number) => {
       const sa = sections[a].t.shape;
       const sb = sections[b].t.shape;
-      if (loaded.sa !== sa) from.set(getShape(sa, ctx));
-      if (loaded.sb !== sb) to.set(getShape(sb, ctx));
-      fromAttr.needsUpdate = loaded.sa !== sa;
-      toAttr.needsUpdate = loaded.sb !== sb;
+      if (loaded.sa !== sa) {
+        from.set(getShape(sa, ctx));
+        fromCol.set(getShapeColors(sa, ctx));
+        fromAttr.needsUpdate = fromColAttr.needsUpdate = true;
+      }
+      if (loaded.sb !== sb) {
+        to.set(getShape(sb, ctx));
+        toCol.set(getShapeColors(sb, ctx));
+        toAttr.needsUpdate = toColAttr.needsUpdate = true;
+      }
       Object.assign(loaded, { a, b, sa, sb });
     };
 
@@ -273,7 +294,8 @@ export default function Stage() {
       // La forme affichée est exactement sections[i] : on charge la paire (i, i) sans saut
       const s = sections[i].t.shape;
       from.set(to);
-      fromAttr.needsUpdate = true;
+      fromCol.set(toCol);
+      fromAttr.needsUpdate = fromColAttr.needsUpdate = true;
       Object.assign(loaded, { a: i, b: i, sa: s, sb: s });
       mode = "scroll";
     };
@@ -362,6 +384,13 @@ export default function Stage() {
     let fontsReady = false;
     document.fonts?.ready.then(() => {
       fontsReady = true;
+    });
+    // Les logos du parcours arrivent après coup : on force le rechargement de la paire affichée
+    let disposed = false;
+    preloadLogos().then(() => {
+      if (disposed) return;
+      if (mode === "scroll") Object.assign(loaded, { a: -1, b: -1, sa: "", sb: "" });
+      else if (currentShape.startsWith("logo-")) setTarget(currentShape, { force: true, dur: 1.2 });
     });
     measure();
 
@@ -471,7 +500,8 @@ export default function Stage() {
         spinAngle += dt * 0.14;
       } else {
         spinAngle = Math.atan2(Math.sin(spinAngle), Math.cos(spinAngle));
-        const amp = shownShape === "name" || shownShape === "braces" ? 0.1 : 0.32;
+        const amp =
+          shownShape === "name" || shownShape === "braces" ? 0.1 : shownShape.startsWith("logo-") ? 0.2 : 0.32;
         spinAngle += (Math.sin(t * 0.25) * amp - spinAngle) * (1 - Math.exp(-dt * 1.5));
       }
       parallax.lerp(hasMouse ? mouseNdc : zero, 1 - Math.exp(-dt * 3));
@@ -574,6 +604,7 @@ export default function Stage() {
     el.classList.add("is-ready");
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(raf);
       registerBurst(() => {});
       window.removeEventListener("wheel", skip);

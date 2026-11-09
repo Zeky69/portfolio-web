@@ -61,6 +61,8 @@ attribute vec4 aRand;
 attribute vec3 aColor;   // teinte d'étoile : blanc froid, bleu pâle ou pêche
 attribute float aMag;    // magnitude 0..1 : la plupart sont faibles, quelques-unes brillent
 attribute vec2 aOffset;  // déplacement (NDC) laissé par le passage du curseur
+attribute vec4 aLogoFrom; // couleur propre (logos) au départ du morph : rgb + poids
+attribute vec4 aLogoTo;   // … et à l'arrivée
 varying vec3 vColor;
 varying float vBright;
 varying float vDiameter;
@@ -77,6 +79,9 @@ void main(){
   float lp = clamp((uProgress - delay) / 0.6, 0.0, 1.0);
   float e = easeInOutCubic(lp);
   vec3 pos = mix(aFrom, aTo, e);
+  // Logo : couleur du pixel d'origine, éclat uniforme, pas de frémissement → lecture nette
+  vec4 logo = mix(aLogoFrom, aLogoTo, e);
+  float w = logo.a;
 
   // Au milieu du trajet, les particules s'envolent dans un courant de bruit
   float flight = sin(3.14159265 * lp);
@@ -86,7 +91,7 @@ void main(){
     snoise(q + vec3(13.7, 0.0, uTime * 0.12)),
     snoise(q + vec3(uTime * 0.12, 27.1, 0.0))
   );
-  pos += drift * (flight * (0.9 + aRand.x * 1.8) * uChaos + 0.02 + 0.02 * aRand.y);
+  pos += drift * (flight * (0.9 + aRand.x * 1.8) * uChaos + (0.02 + 0.02 * aRand.y) * (1.0 - 0.9 * w));
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -97,8 +102,9 @@ void main(){
   // Étoiles fines : 1 à 4 px, la profondeur ne fait varier la taille que légèrement
   float depth = clamp(10.0 / -mv.z, 0.75, 1.35);
   float diameter = uPixelRatio * (1.0 + aMag * aMag * 2.6) * depth * (1.0 + stir * 0.25);
+  diameter = mix(diameter, uPixelRatio * 1.8 * depth * (1.0 + stir * 0.25), w);
   vDiameter = diameter;
-  vSpike = smoothstep(0.86, 1.0, aMag);
+  vSpike = smoothstep(0.86, 1.0, aMag) * (1.0 - w);
   // La place autour du cœur sert au petit halo et aux aigrettes des plus brillantes
   gl_PointSize = max(diameter * mix(2.6, 6.0, vSpike), 4.0);
 
@@ -110,6 +116,9 @@ void main(){
   sectionTint = mix(sectionTint, vec3(1.0), 0.32);
   float tinted = mix(0.2, 0.9, step(0.4, fract(aRand.x * 7.13)));
   vColor = mix(aColor, sectionTint, tinted);
+  vColor = mix(vColor, logo.rgb / max(w, 0.001), w);
+  // Éclat modéré : en mélange additif, les zones denses virent vite au blanc et perdent la couleur
+  vBright = mix(vBright, (0.55 + stir * 0.35) * uOpacity, w);
 }
 `;
 

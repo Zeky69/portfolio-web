@@ -1,16 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import SmoothScroll from "@/components/fx/SmoothScroll";
 import Cursor from "@/components/fx/Cursor";
 import Stage from "@/components/three/Stage";
 import { TransitionProvider } from "@/components/fx/PageTransition";
 import "./globals.css";
 
-const display = Bricolage_Grotesque({
+const display = Instrument_Sans({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  axes: ["wdth", "opsz"],
+  axes: ["wdth"],
 });
 
 const serif = Instrument_Serif({

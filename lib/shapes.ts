@@ -16,7 +16,202 @@ export type ShapeName =
   | "braces"
   | "helix"
   | "knot"
-  | "galaxy";
+  | "galaxy"
+  | LogoName;
+
+/* ---------- Logos (parcours) ---------- */
+
+/**
+ * Logos des écoles / employeurs, échantillonnés depuis l'image puis extrudés :
+ * face avant, face arrière, tranches sur les contours et détails intérieurs.
+ *  - "alpha" : tout pixel opaque est de la matière
+ *  - "dark"  : les pixels blancs sont des trous (lettres claires découpées dans un disque sombre)
+ * `keep` : zones conservées (fractions x0, y0, x1, y1 de l'image) — on retire le petit texte,
+ * illisible une fois en particules.
+ */
+type Rect = readonly [number, number, number, number];
+type LogoDef = { src: string; mode: "alpha" | "dark"; keep?: readonly Rect[] };
+
+export const LOGOS = {
+  // Symbole + « utt » + « TROYES », sans la ligne « Université de technologie » trop fine
+  "logo-utt": { src: "/logos/utt.png", mode: "alpha", keep: [[0, 0, 0.4, 1], [0.4, 0, 1, 0.66], [0.4, 0.8, 1, 1]] },
+  "logo-42": { src: "/logos/42.svg", mode: "alpha" },
+  "logo-sdis": { src: "/logos/sdis25.webp", mode: "alpha" },
+  // « femto-st » + les quatre carrés, sans « Sciences & Technologies »
+  "logo-femto": { src: "/logos/femto-st.svg", mode: "alpha", keep: [[0, 0, 1, 0.52], [0, 0.53, 0.41, 0.73]] },
+  // La pastille « iut » seule : le nom complet, trop fin en particules, est déjà dans le texte
+  "logo-iut": { src: "/logos/iut-nfc.png", mode: "dark", keep: [[0, 0, 0.32, 1]] },
+} as const satisfies Record<string, LogoDef>;
+export type LogoName = keyof typeof LOGOS;
+
+const isLogo = (name: string): name is LogoName => name in LOGOS;
+
+type LogoBitmap = { w: number; h: number; data: Uint8ClampedArray };
+const logoBitmaps = new Map<LogoName, LogoBitmap>();
+let logosPromise: Promise<void> | null = null;
+
+/** Charge et rastérise les logos une seule fois (SVG compris), à ~720 px de côté max. */
+export function preloadLogos() {
+  if (logosPromise) return logosPromise;
+  logosPromise = Promise.all(
+    (Object.keys(LOGOS) as LogoName[]).map(async (name) => {
+      try {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = LOGOS[name].src;
+        await img.decode();
+        const iw = img.naturalWidth || 400;
+        const ih = img.naturalHeight || 400;
+        const k = 720 / Math.max(iw, ih);
+        const w = Math.round(iw * k);
+        const h = Math.round(ih * k);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const cx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!cx) return;
+        cx.imageSmoothingQuality = "high";
+        cx.drawImage(img, 0, 0, w, h);
+        logoBitmaps.set(name, { w, h, data: cx.getImageData(0, 0, w, h).data });
+      } catch {
+        /* logo indisponible : la forme de repli reste affichée */
+      }
+    })
+  ).then(() => {});
+  return logosPromise;
+}
+
+/**
+ * Couleur affichable d'un pixel du logo : on garde la teinte mais on remonte la luminosité
+ * (fond sombre + mélange additif), et le noir devient un gris clair légèrement froid.
+ */
+function visibleColor(r: number, g: number, b: number): [number, number, number] {
+  const max = Math.max(r, g, b);
+  if (max < 0.16) return [0.74, 0.77, 0.84];
+  const k = Math.min(1 / max, 2.4);
+  return [Math.min(1, r * k) * 0.96 + 0.04, Math.min(1, g * k) * 0.96 + 0.04, Math.min(1, b * k) * 0.96 + 0.04];
+}
+
+function logoPoints(n: number, bmp: LogoBitmap, def: LogoDef, seed: number) {
+  const { mode, keep } = def;
+  // rgb + poids « logo » (1 = la particule prend la couleur du logo et un éclat uniforme)
+  const col = new Float32Array(n * 4);
+  const { w, h, data } = bmp;
+  const r = mulberry32(seed);
+  const out = new Float32Array(n * 3);
+
+  const lum = (i: number) => (0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2]) / 255;
+  const ink = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    if (data[i * 4 + 3] < 128) continue;
+    if (keep) {
+      const fx = (i % w) / w;
+      const fy = Math.floor(i / w) / h;
+      if (!keep.some(([x0, y0, x1, y1]) => fx >= x0 && fx <= x1 && fy >= y0 && fy <= y1)) continue;
+    }
+    if (mode === "dark" && lum(i) > 0.82) continue;
+    ink[i] = 1;
+  }
+
+  // Pixels pleins, contours (→ tranches) et détails intérieurs (changements de couleur)
+  const fill: number[] = [];
+  const edge: number[] = [];
+  const detail: number[] = [];
+  let minX = w, maxX = 0, minY = h, maxY = 0;
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      if (!ink[i]) continue;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+      fill.push(x, y);
+      if (!ink[i - 1] || !ink[i + 1] || !ink[i - w] || !ink[i + w]) {
+        edge.push(x, y);
+        continue;
+      }
+      const l = lum(i);
+      if (
+        Math.abs(l - lum(i + 1)) > 0.13 ||
+        Math.abs(l - lum(i + w)) > 0.13 ||
+        Math.abs(l - lum(i - 1)) > 0.13 ||
+        Math.abs(l - lum(i - w)) > 0.13
+      )
+        detail.push(x, y);
+    }
+  }
+  if (fill.length === 0) return { pos: out, col };
+
+  // Mise à l'échelle : tient dans une boîte de 2,75 × 2,3 unités (à gauche du texte), centrée
+  const bw = maxX - minX + 1;
+  const bh = maxY - minY + 1;
+  const scale = Math.min(2.75 / bw, 2.3 / bh);
+  const ox = (minX + maxX) / 2;
+  const oy = (minY + maxY) / 2;
+  const D = 0.17; // demi-épaisseur de l'extrusion
+
+  // Les logos riches en dessins intérieurs (écusson) donnent plus de place aux détails
+  const detailShare = detail.length < 200 ? 0 : Math.min(0.48, 0.12 + (detail.length / fill.length) * 1.2);
+  // Moins de remplissage (et de face arrière, qui transparaît) quand il y a des détails à montrer
+  // La face arrière transparaît (mélange additif) et brouille la lecture : on la garde discrète
+  const front = Math.max(0.14, 0.6 - detailShare);
+  const back = 0.06;
+  const parts: [number, number[], "front" | "back" | "wall"][] = [
+    [front, fill, "front"],
+    [back, fill, "back"],
+    [1 - front - back - detailShare, edge.length ? edge : fill, "wall"],
+  ];
+  if (detailShare > 0) parts.push([detailShare, detail, "front"]);
+
+  // Couleur du pixel source (les faces arrière et tranches un peu plus sombres : effet de volume)
+  const paint = (i: number, x: number, y: number, shade: number) => {
+    const k = (y * w + x) * 4;
+    const [cr, cg, cb] = visibleColor(data[k] / 255, data[k + 1] / 255, data[k + 2] / 255);
+    col[i * 4] = cr * shade;
+    col[i * 4 + 1] = cg * shade;
+    col[i * 4 + 2] = cb * shade;
+    col[i * 4 + 3] = 1;
+  };
+
+  let i = 0;
+  for (const [weight, pool, face] of parts) {
+    const count = Math.round(weight * n);
+    const m = pool.length / 2;
+    for (let k = 0; k < count && i < n; k++, i++) {
+      const p = Math.floor(r() * m);
+      const x = pool[p * 2] + (r() - 0.5);
+      const y = pool[p * 2 + 1] + (r() - 0.5);
+      const z = face === "front" ? D : face === "back" ? -D : (r() * 2 - 1) * D;
+      out[i * 3] = (x - ox) * scale;
+      out[i * 3 + 1] = -(y - oy) * scale;
+      out[i * 3 + 2] = z + gauss(r) * 0.006;
+      paint(i, pool[p * 2], pool[p * 2 + 1], face === "front" ? 1 : 0.75);
+    }
+  }
+  for (; i < n; i++) {
+    const p = Math.floor(r() * (fill.length / 2));
+    out[i * 3] = (fill[p * 2] - ox) * scale;
+    out[i * 3 + 1] = -(fill[p * 2 + 1] - oy) * scale;
+    out[i * 3 + 2] = D;
+    paint(i, fill[p * 2], fill[p * 2 + 1], 1);
+  }
+  // Mélange pour que le morph ne parte pas par paquets
+  for (let a = n - 1; a > 0; a--) {
+    const b = Math.floor(r() * (a + 1));
+    for (let c = 0; c < 3; c++) {
+      const t = out[a * 3 + c];
+      out[a * 3 + c] = out[b * 3 + c];
+      out[b * 3 + c] = t;
+    }
+    for (let c = 0; c < 4; c++) {
+      const t = col[a * 4 + c];
+      col[a * 4 + c] = col[b * 4 + c];
+      col[b * 4 + c] = t;
+    }
+  }
+  return { pos: out, col };
+}
 
 type Rng = () => number;
 
@@ -151,7 +346,7 @@ function textPoints(
 
 export type ShapeContext = { n: number; displayFont: string; monoFont: string; narrow: boolean };
 
-const generators: Record<ShapeName, (c: ShapeContext) => Float32Array> = {
+const generators: Record<Exclude<ShapeName, LogoName>, (c: ShapeContext) => Float32Array> = {
   scatter: ({ n }) =>
     mix(n, 1, [
       [1, (r) => [(r() - 0.5) * 16, (r() - 0.5) * 9, (r() - 0.5) * 8 - 1]],
@@ -442,15 +637,41 @@ const generators: Record<ShapeName, (c: ShapeContext) => Float32Array> = {
 };
 
 const cache = new Map<string, Float32Array>();
+const colorCache = new Map<string, Float32Array>();
+const noColor = new Map<number, Float32Array>();
 
-export function getShape(name: ShapeName, c: ShapeContext) {
+export function getShape(name: ShapeName, c: ShapeContext): Float32Array {
   const key = `${name}:${c.n}:${c.narrow ? 1 : 0}`;
   let s = cache.get(key);
-  if (!s) {
+  if (s) return s;
+  if (isLogo(name)) {
+    const bmp = logoBitmaps.get(name);
+    // Logo pas encore chargé : forme de repli, non mise en cache
+    if (!bmp) return getShape("knot", c);
+    const res = logoPoints(c.n, bmp, LOGOS[name], 20 + Object.keys(LOGOS).indexOf(name));
+    s = res.pos;
+    colorCache.set(key, res.col);
+  } else {
     s = generators[name](c);
-    cache.set(key, s);
   }
+  cache.set(key, s);
   return s;
 }
 
-export const SHAPES = Object.keys(generators) as ShapeName[];
+/** Couleur propre de chaque particule (rgb + poids), nulle pour les formes qui ne sont pas des logos. */
+export function getShapeColors(name: ShapeName, c: ShapeContext): Float32Array {
+  const key = `${name}:${c.n}:${c.narrow ? 1 : 0}`;
+  if (isLogo(name)) {
+    getShape(name, c);
+    const col = colorCache.get(key);
+    if (col) return col;
+  }
+  let z = noColor.get(c.n);
+  if (!z) {
+    z = new Float32Array(c.n * 4);
+    noColor.set(c.n, z);
+  }
+  return z;
+}
+
+export const SHAPES = [...Object.keys(generators), ...Object.keys(LOGOS)] as ShapeName[];
