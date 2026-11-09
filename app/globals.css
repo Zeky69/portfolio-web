@@ -37,7 +37,6 @@ body {
   background-color: var(--ink);
   color: var(--cream);
   font-family: var(--font-display), system-ui, sans-serif;
-  font-variation-settings: "wdth" 100;
   overflow-x: clip;
   min-height: 100vh;
   text-rendering: optimizeLegibility;
@@ -228,8 +227,6 @@ body::after {
     font-variant-numeric: tabular-nums;
   }
   .wide {
-    font-variation-settings: "wdth" 100;
-    font-stretch: 100%;
   }
 }
 

@@ -5,13 +5,11 @@ import RevealText from "@/components/fx/RevealText";
 import { easeExpo } from "@/lib/animations";
 
 export default function SectionTitle({
-  label,
   title,
   accent,
   intro,
   className = "",
 }: {
-  label: string;
   title: string;
   accent?: string;
   intro?: string;
@@ -19,19 +17,8 @@ export default function SectionTitle({
 }) {
   return (
     <header className={className}>
-      <motion.p
-        initial={{ opacity: 0, x: -16 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.9, ease: easeExpo }}
-        className="label flex items-center gap-3 text-muted"
-      >
-        <span className="h-px w-10 bg-accent" />
-        {label}
-      </motion.p>
       <h2
-        className="mt-6 text-[clamp(2.8rem,7.5vw,7.5rem)] font-extrabold leading-[0.88] tracking-[-0.025em]"
-        style={{ fontVariationSettings: '"wdth" 85' }}
+        className="text-[clamp(2.8rem,7.5vw,7.5rem)] font-extrabold leading-[0.88] tracking-[-0.025em]"
       >
         <RevealText text={title} />
         {accent && (

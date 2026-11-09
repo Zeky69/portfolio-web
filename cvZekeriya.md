@@ -134,7 +134,7 @@ Projet personnel réalisé dans un but d'apprentissage des communications résea
 
 ### BUT Informatique *(Obtenu)*
 
-2022 – 2025 · IUT Nord-Franche-Comté, Montbéliard
+2022 – 2025 · IUT Nord-Franche-Comté, Belfort
 
 ### Baccalauréat Général
 

@@ -32,14 +32,8 @@ export default function Contact() {
       className="relative flex min-h-[100svh] items-center px-5 py-28 sm:px-8 lg:px-12"
     >
       <div className="mx-auto w-full max-w-[1600px]">
-        <p className="label flex items-center gap-3 text-muted">
-          <span className="text-accent">04</span>
-          <span className="h-px w-10 bg-border-hover" />
-          Contact
-        </p>
         <h2
-          className="mt-8 max-w-[14ch] text-[clamp(3.2rem,9vw,9.5rem)] font-extrabold leading-[0.86] tracking-[-0.03em]"
-          style={{ fontVariationSettings: '"wdth" 85' }}
+          className="max-w-[14ch] text-[clamp(3.2rem,9vw,9.5rem)] font-extrabold leading-[0.86] tracking-[-0.03em]"
         >
           <RevealText text="On construit" />{" "}
           <span className="font-serif font-normal italic tracking-[-0.02em] text-accent">

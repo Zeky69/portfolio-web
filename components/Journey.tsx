@@ -58,7 +58,7 @@ const steps: Step[] = [
     period: "2022 — 2025",
     kind: "Formation",
     title: "BUT Informatique",
-    place: "IUT Nord-Franche-Comté · Montbéliard",
+    place: "IUT Nord-Franche-Comté · Belfort",
     text: "Diplôme obtenu, dernière année en alternance.",
     logo: "logo-iut",
   },
@@ -69,7 +69,7 @@ const steps: Step[] = [
  * déclare le sien. La scène ne regarde que le haut de chaque bloc : une étape imbriquée
  * prend donc le relais dès qu'elle atteint le milieu de l'écran.
  */
-const stage = (logo: LogoName, morph = 0.3) => ({
+const stage = (logo: LogoName, morph = 0.25) => ({
   "data-stage": logo,
   "data-side": "left",
   "data-c1": "#FFC48A",
@@ -90,7 +90,7 @@ export default function Journey() {
     >
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 md:grid-cols-12">
         <div className="md:col-span-8 md:col-start-5 lg:col-span-7 lg:col-start-6">
-          <SectionTitle label="Parcours" title="Le chemin" accent="jusqu'ici." />
+          <SectionTitle title="Le chemin" accent="jusqu'ici." />
 
           <ol ref={ref} className="relative mt-16 pl-8 sm:pl-12">
             <span className="absolute left-0 top-2 h-[calc(100%-1rem)] w-px bg-border" />
@@ -106,7 +106,7 @@ export default function Journey() {
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 1, ease: easeExpo, delay: 0.05 * i }}
                 {...(i > 0 ? stage(s.logo) : {})}
-                className="relative pb-14 last:pb-0 md:min-h-[75vh]"
+                className="relative pb-14 last:pb-0 md:min-h-[42vh]"
               >
                 <span
                   className={`absolute -left-8 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-bg sm:-left-12 ${

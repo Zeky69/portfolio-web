@@ -23,12 +23,6 @@ function Word({ word, range, progress }: { word: string; range: [number, number]
   );
 }
 
-const stats = [
-  { value: "50+", label: "dépôts GitHub" },
-  { value: "3", label: "projets utilisés en production" },
-  { value: "1 an", label: "d'alternance au SDIS 25" },
-];
-
 const skills = [
   { title: "IA & données", items: ["PyTorch", "TensorFlow", "LangChain", "Scikit-Learn", "Ollama", "RAG", "Décodage contraint"] },
   { title: "Web", items: ["Next.js", "React", "Vue.js", "TypeScript", "FastAPI", "Express", "Fastify", "Flask"] },
@@ -45,7 +39,7 @@ export default function Profile() {
     <section id="profil" className="relative px-5 sm:px-8 lg:px-12">
       <div data-stage="wave" data-side="left" data-c1="#8FB8FF" data-c2="#5C8DFF" className="mx-auto grid min-h-[100svh] max-w-[1600px] grid-cols-1 items-center py-28 md:grid-cols-12">
         <div className="md:col-span-8 md:col-start-5 lg:col-span-7 lg:col-start-6">
-          <SectionTitle label="Profil" title="Du code qui" accent="sert." />
+          <SectionTitle title="Du code qui" accent="sert." />
           <p ref={ref} className="mt-12 text-[clamp(1.35rem,2.4vw,2.2rem)] font-medium leading-[1.3] tracking-[-0.02em]">
             {words.map((w, i) => {
               const start = i / words.length;
@@ -53,32 +47,12 @@ export default function Profile() {
             })}
           </p>
 
-          <div className="mt-16 grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border">
-            {stats.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 1, ease: easeExpo, delay: i * 0.1 }}
-                className="bg-bg/75 p-4 backdrop-blur sm:p-6"
-              >
-                <p className="text-[clamp(1.8rem,4vw,3.4rem)] font-extrabold leading-none tracking-[-0.02em] text-accent">{s.value}</p>
-                <p className="mt-3 text-xs leading-snug text-muted-light sm:text-sm">{s.label}</p>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </div>
 
       <div data-stage="helix" data-side="right" data-c1="#6F95D8" data-c2="#5CC8FF" className="mx-auto grid min-h-[90svh] max-w-[1600px] grid-cols-1 items-center py-24 md:grid-cols-12">
         <div className="md:col-span-7 lg:col-span-6">
-          <p className="label flex items-center gap-3 text-muted">
-            <span className="text-accent">02.b</span>
-            <span className="h-px w-10 bg-border-hover" />
-            Stack
-          </p>
-          <ul className="mt-8">
+          <ul>
             {skills.map((g, i) => (
               <motion.li
                 key={g.title}

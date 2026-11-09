@@ -935,7 +935,6 @@ export default function Explainer({ slug, colors }: { slug: string; colors: Colo
       </p>
       <h2
         className="mb-14 mt-5 text-[clamp(2.4rem,6vw,5.5rem)] font-extrabold leading-[0.9] tracking-[-0.025em] md:mb-20"
-        style={{ fontVariationSettings: '"wdth" 85' }}
       >
         En {steps.length} <span className="font-serif font-normal italic tracking-[-0.02em]" style={{ color: colors[1] }}>étapes.</span>
       </h2>

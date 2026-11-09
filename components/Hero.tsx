@@ -38,7 +38,6 @@ export default function Hero() {
 
         <h1
           className="mt-10 font-extrabold leading-[0.84] tracking-[-0.03em] sm:mt-14"
-          style={{ fontVariationSettings: '"wdth" 85' }}
         >
           <span className="block text-[clamp(3.6rem,13.5vw,13rem)]">
             <RevealText text="Zekeriya" play={intro} delay={0.05} stagger={0.035} />

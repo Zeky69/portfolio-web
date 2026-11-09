@@ -52,7 +52,6 @@ function Chapter({ project, index }: { project: Project; index: number }) {
             )}
             <h3
               className="text-[clamp(2.8rem,6.6vw,6.8rem)] font-extrabold leading-[0.88] tracking-[-0.025em]"
-              style={{ fontVariationSettings: '"wdth" 85' }}
             >
               <RevealText text={project.title} stagger={0.02} />
             </h3>
@@ -147,7 +146,6 @@ export default function Projects() {
     <section id="projets" className="relative px-5 sm:px-8 lg:px-12">
       <div data-stage="scatter" data-dim="0.5" className="mx-auto max-w-[1600px] pb-10 pt-32 md:pt-44">
         <SectionTitle
-          label="Projets"
           title="Ce que j'ai"
           accent="construit."
           intro="Des projets complets, du natif macOS à l'IA locale. Chacun est en ligne, publié ou open source — et chacun a sa forme."

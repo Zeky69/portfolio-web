@@ -27,7 +27,7 @@ export default function Footer() {
           </div>
         </div>
         <motion.p
-          style={{ y, fontVariationSettings: '"wdth" 80' }}
+          style={{ y }}
           aria-hidden
           className="mx-auto mt-6 max-w-[1600px] select-none whitespace-nowrap text-center text-[19.5vw] font-extrabold leading-[0.78] tracking-[-0.035em]"
         >

@@ -1,16 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import SmoothScroll from "@/components/fx/SmoothScroll";
 import Cursor from "@/components/fx/Cursor";
 import Stage from "@/components/three/Stage";
 import { TransitionProvider } from "@/components/fx/PageTransition";
 import "./globals.css";
 
-const display = Instrument_Sans({
+const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  axes: ["wdth"],
 });
 
 const serif = Instrument_Serif({
