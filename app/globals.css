@@ -37,6 +37,8 @@ body {
   background-color: var(--ink);
   color: var(--cream);
   font-family: var(--font-display), system-ui, sans-serif;
+  /* Space Grotesk est assez aérée d'origine : on resserre un peu le texte courant */
+  letter-spacing: -0.01em;
   overflow-x: clip;
   min-height: 100vh;
   text-rendering: optimizeLegibility;
@@ -295,7 +297,7 @@ body::after {
 .project-markdown h3 {
   color: var(--cream);
   line-height: 1.15;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.035em;
   font-weight: 650;
   margin-top: 2.8rem;
   margin-bottom: 0.9rem;

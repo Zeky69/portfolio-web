@@ -33,7 +33,7 @@ export default function Contact() {
     >
       <div className="mx-auto w-full max-w-[1600px]">
         <h2
-          className="max-w-[14ch] text-[clamp(3.2rem,9vw,9.5rem)] font-extrabold leading-[0.86] tracking-[-0.03em]"
+          className="max-w-[14ch] text-[clamp(3.2rem,9vw,9.5rem)] font-extrabold leading-[0.86] tracking-[-0.05em]"
         >
           <RevealText text="On construit" />{" "}
           <span className="font-serif font-normal italic tracking-[-0.02em] text-accent">

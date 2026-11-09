@@ -51,7 +51,7 @@ function Chapter({ project, index }: { project: Project; index: number }) {
               />
             )}
             <h3
-              className="text-[clamp(2.8rem,6.6vw,6.8rem)] font-extrabold leading-[0.88] tracking-[-0.025em]"
+              className="text-[clamp(2.8rem,6.6vw,6.8rem)] font-extrabold leading-[0.88] tracking-[-0.045em]"
             >
               <RevealText text={project.title} stagger={0.02} />
             </h3>

@@ -91,7 +91,7 @@ void main(){
     snoise(q + vec3(13.7, 0.0, uTime * 0.12)),
     snoise(q + vec3(uTime * 0.12, 27.1, 0.0))
   );
-  pos += drift * (flight * (0.9 + aRand.x * 1.8) * uChaos + (0.02 + 0.02 * aRand.y) * (1.0 - 0.9 * w));
+  pos += drift * (flight * (0.9 + aRand.x * 1.8) * uChaos + (0.02 + 0.02 * aRand.y) * (1.0 - 0.6 * w));
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -102,9 +102,10 @@ void main(){
   // Étoiles fines : 1 à 4 px, la profondeur ne fait varier la taille que légèrement
   float depth = clamp(10.0 / -mv.z, 0.75, 1.35);
   float diameter = uPixelRatio * (1.0 + aMag * aMag * 2.6) * depth * (1.0 + stir * 0.25);
-  diameter = mix(diameter, uPixelRatio * 1.8 * depth * (1.0 + stir * 0.25), w);
+  // Logo : même famille d'étoiles, mais tailles un peu resserrées pour garder le dessin lisible
+  diameter = mix(diameter, uPixelRatio * (1.3 + aMag * aMag * 1.8) * depth * (1.0 + stir * 0.25), w);
   vDiameter = diameter;
-  vSpike = smoothstep(0.86, 1.0, aMag) * (1.0 - w);
+  vSpike = smoothstep(0.86, 1.0, aMag) * (1.0 - 0.5 * w);
   // La place autour du cœur sert au petit halo et aux aigrettes des plus brillantes
   gl_PointSize = max(diameter * mix(2.6, 6.0, vSpike), 4.0);
 
@@ -116,9 +117,16 @@ void main(){
   sectionTint = mix(sectionTint, vec3(1.0), 0.32);
   float tinted = mix(0.2, 0.9, step(0.4, fract(aRand.x * 7.13)));
   vColor = mix(aColor, sectionTint, tinted);
-  vColor = mix(vColor, logo.rgb / max(w, 0.001), w);
-  // Éclat modéré : en mélange additif, les zones denses virent vite au blanc et perdent la couleur
-  vBright = mix(vBright, (0.55 + stir * 0.35) * uOpacity, w);
+  // Logo : couleur du pixel d'origine, nuancée par la teinte de l'étape (forte sur les parties
+  // blanches/grises, légère sur les parties déjà colorées pour qu'elles restent reconnaissables)
+  vec3 lc = logo.rgb / max(w, 0.001);
+  float sat = max(lc.r, max(lc.g, lc.b)) - min(lc.r, min(lc.g, lc.b));
+  float tintK = tinted * mix(0.8, 0.22, smoothstep(0.12, 0.45, sat));
+  lc = mix(lc, mix(uColorA, uColorB, step(0.5, fract(aRand.z * 3.7))) * 1.15, tintK);
+  vColor = mix(vColor, lc, w);
+  // Éclat : on garde la variation des étoiles (faibles / brillantes) mais avec un plancher,
+  // et plus modéré qu'ailleurs : en mélange additif, les zones denses virent vite au blanc
+  vBright = mix(vBright, (0.36 + aMag * 0.8 + stir * 0.35) * twinkle * uOpacity, w);
 }
 `;
 

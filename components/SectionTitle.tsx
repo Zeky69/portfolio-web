@@ -18,7 +18,7 @@ export default function SectionTitle({
   return (
     <header className={className}>
       <h2
-        className="text-[clamp(2.8rem,7.5vw,7.5rem)] font-extrabold leading-[0.88] tracking-[-0.025em]"
+        className="text-[clamp(2.8rem,7.5vw,7.5rem)] font-extrabold leading-[0.88] tracking-[-0.045em]"
       >
         <RevealText text={title} />
         {accent && (

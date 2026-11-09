@@ -142,7 +142,7 @@ export default function Navbar() {
                 >
                   <button
                     onClick={() => go(l.href)}
-                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.025em]"
+                    className="flex w-full items-baseline justify-between py-4 text-left text-[13vw] font-extrabold leading-none tracking-[-0.045em]"
                   >
                     {l.label}
                   </button>

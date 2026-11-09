@@ -37,12 +37,12 @@ export default function Hero() {
         </motion.p>
 
         <h1
-          className="mt-10 font-extrabold leading-[0.84] tracking-[-0.03em] sm:mt-14"
+          className="mt-10 font-extrabold leading-[0.84] sm:mt-14"
         >
-          <span className="block text-[clamp(3.6rem,13.5vw,13rem)]">
+          <span className="block text-[clamp(3.6rem,13.5vw,13rem)] tracking-[-0.055em] lg:text-[min(11.5vw,11rem)]">
             <RevealText text="Zekeriya" play={intro} delay={0.05} stagger={0.035} />
           </span>
-          <span className="block text-[clamp(3.6rem,13.5vw,13rem)] text-accent">
+          <span className="block text-[clamp(3.6rem,13.5vw,13rem)] tracking-[-0.055em] lg:text-[min(11.5vw,11rem)] text-accent">
             <RevealText text="Akburak" play={intro} delay={0.2} stagger={0.035} />
           </span>
         </h1>

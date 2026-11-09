@@ -40,7 +40,7 @@ export default function Profile() {
       <div data-stage="wave" data-side="left" data-c1="#8FB8FF" data-c2="#5C8DFF" className="mx-auto grid min-h-[100svh] max-w-[1600px] grid-cols-1 items-center py-28 md:grid-cols-12">
         <div className="md:col-span-8 md:col-start-5 lg:col-span-7 lg:col-start-6">
           <SectionTitle title="Du code qui" accent="sert." />
-          <p ref={ref} className="mt-12 text-[clamp(1.35rem,2.4vw,2.2rem)] font-medium leading-[1.3] tracking-[-0.02em]">
+          <p ref={ref} className="mt-12 text-[clamp(1.35rem,2.4vw,2.2rem)] font-medium leading-[1.3] tracking-[-0.035em]">
             {words.map((w, i) => {
               const start = i / words.length;
               return <Word key={i} word={w} range={[start, start + 1 / words.length]} progress={scrollYProgress} />;
@@ -63,7 +63,7 @@ export default function Profile() {
                 className="group border-t border-border py-7 last:border-b"
               >
                 <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="text-[clamp(1.6rem,3vw,2.6rem)] font-bold tracking-[-0.015em] transition-transform duration-700 ease-expo group-hover:translate-x-2">
+                  <h3 className="text-[clamp(1.6rem,3vw,2.6rem)] font-bold tracking-[-0.03em] transition-transform duration-700 ease-expo group-hover:translate-x-2">
                     {g.title}
                   </h3>
                 </div>

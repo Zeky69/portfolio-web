@@ -16,6 +16,8 @@ type Step = {
   current?: boolean;
   /** Logo dessiné en particules pendant qu'on lit cette étape */
   logo: LogoName;
+  /** Teintes des étoiles (et de la nébuleuse) pendant cette étape, tirées du logo */
+  tint: [string, string];
 };
 
 const steps: Step[] = [
@@ -27,6 +29,7 @@ const steps: Step[] = [
     text: "Première année de branche, en formation initiale.",
     current: true,
     logo: "logo-utt",
+    tint: ["#3FA9F5", "#8FD3FF"],
   },
   {
     period: "2025 — 2026",
@@ -35,6 +38,7 @@ const steps: Step[] = [
     place: "Campus de Mulhouse",
     text: "Pédagogie par projets, sans cours : RAG, décodage contraint, Docker, threads en C, Pac-Man, labyrinthes, routage de drones.",
     logo: "logo-42",
+    tint: ["#00BABC", "#7FF0E6"],
   },
   {
     period: "2024 — 2025",
@@ -44,6 +48,7 @@ const steps: Step[] = [
     text: "Développement d'Optimops, l'outil de gestion et d'analyse des données opérationnelles : tableaux de bord, génération de rapports et simulations via un jumeau numérique.",
     tags: ["Vue.js", "Python", "Flask", "MongoDB"],
     logo: "logo-sdis",
+    tint: ["#E2363A", "#F2C14E"],
   },
   {
     period: "Avr — Juin 2024",
@@ -53,6 +58,7 @@ const steps: Step[] = [
     text: "Apprentissage fédéré (Federated Learning) pour prévoir la consommation et la production d'énergies renouvelables, solaire et éolien.",
     tags: ["Python", "TensorFlow", "Scikit-Learn"],
     logo: "logo-femto",
+    tint: ["#2E7BC4", "#9BC863"],
   },
   {
     period: "2022 — 2025",
@@ -61,6 +67,7 @@ const steps: Step[] = [
     place: "IUT Nord-Franche-Comté · Belfort",
     text: "Diplôme obtenu, dernière année en alternance.",
     logo: "logo-iut",
+    tint: ["#F08A24", "#F5C542"],
   },
 ];
 
@@ -69,11 +76,11 @@ const steps: Step[] = [
  * déclare le sien. La scène ne regarde que le haut de chaque bloc : une étape imbriquée
  * prend donc le relais dès qu'elle atteint le milieu de l'écran.
  */
-const stage = (logo: LogoName, morph = 0.25) => ({
-  "data-stage": logo,
+const stage = (s: Step, morph = 0.25) => ({
+  "data-stage": s.logo,
   "data-side": "left",
-  "data-c1": "#FFC48A",
-  "data-c2": "#FF8FB1",
+  "data-c1": s.tint[0],
+  "data-c2": s.tint[1],
   "data-morph": String(morph),
 });
 
@@ -85,7 +92,7 @@ export default function Journey() {
   return (
     <section
       id="parcours"
-      {...stage(steps[0].logo, 0.5)}
+      {...stage(steps[0], 0.5)}
       className="relative px-5 py-28 sm:px-8 md:py-40 lg:px-12"
     >
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 md:grid-cols-12">
@@ -105,7 +112,7 @@ export default function Journey() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 1, ease: easeExpo, delay: 0.05 * i }}
-                {...(i > 0 ? stage(s.logo) : {})}
+                {...(i > 0 ? stage(s) : {})}
                 className="relative pb-14 last:pb-0 md:min-h-[42vh]"
               >
                 <span
@@ -117,7 +124,7 @@ export default function Journey() {
                   <span className={s.kind === "Expérience" ? "text-accent" : "text-steel"}>{s.kind}</span>
                   <span className="tabular">{s.period}</span>
                 </p>
-                <h3 className="mt-3 text-[clamp(1.5rem,2.8vw,2.4rem)] font-bold leading-[1.05] tracking-[-0.015em]">{s.title}</h3>
+                <h3 className="mt-3 text-[clamp(1.5rem,2.8vw,2.4rem)] font-bold leading-[1.05] tracking-[-0.03em]">{s.title}</h3>
                 <p className="mt-2 font-serif text-xl italic text-muted-light">{s.place}</p>
                 <p className="mt-4 max-w-[58ch] leading-relaxed text-muted-light">{s.text}</p>
                 {s.tags && (
